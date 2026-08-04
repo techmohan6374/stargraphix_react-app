@@ -1,0 +1,332 @@
+import { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import ProductCard from '../components/ui/ProductCard';
+import Icon from '../components/icons/Icons';
+import { products, getBestSellers } from '../data/products';
+import { categories } from '../data/categories';
+
+// Hero slides
+const heroSlides = [
+  {
+    title: 'Premium Design & Printing Services',
+    subtitle: 'Flyers, Business Cards, Wedding Cards & More',
+    desc: 'Professional designs delivered in 24 hours. Print-ready files with unlimited revisions.',
+    cta: 'Explore Printing',
+    ctaLink: '/products?category=design-printing',
+    ctaSecondary: 'Get Free Quote',
+    bg: 'from-primary-800 via-primary-600 to-red-700',
+    tag: 'Design & Print',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop',
+  },
+  {
+    title: 'Custom Software Development',
+    subtitle: 'Web Apps, Mobile Apps & E-commerce Solutions',
+    desc: 'End-to-end digital solutions built with modern technology. From idea to launch.',
+    cta: 'View Software Services',
+    ctaLink: '/products?category=software-development',
+    ctaSecondary: 'Free Consultation',
+    bg: 'from-gray-900 via-gray-800 to-primary-900',
+    tag: 'Software Development',
+    image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=600&h=400&fit=crop',
+  },
+  {
+    title: 'Instagram & Social Media Designs',
+    subtitle: 'Posts, Stories & Reels Templates',
+    desc: 'Engage your audience with stunning social media content. Brand-consistent, scroll-stopping designs.',
+    cta: 'Browse Social Media',
+    ctaLink: '/products?category=instagram-posters',
+    ctaSecondary: 'View Portfolio',
+    bg: 'from-purple-800 via-pink-700 to-primary-700',
+    tag: 'Social Media',
+    image: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=600&h=400&fit=crop',
+  },
+];
+
+// Service category cards
+const serviceCards = [
+  { icon: 'Image', name: 'Flyers', slug: 'flyers', count: '50+ Designs', color: 'bg-red-50', iconColor: 'text-primary-600' },
+  { icon: 'FileText', name: 'Business Cards', slug: 'business-cards', count: '30+ Styles', color: 'bg-blue-50', iconColor: 'text-blue-600' },
+  { icon: 'FileText', name: 'Resumes', slug: 'resumes', count: 'ATS Ready', color: 'bg-purple-50', iconColor: 'text-purple-600' },
+  { icon: 'Instagram', name: 'Instagram Posters', slug: 'instagram-posters', count: '100+ Templates', color: 'bg-pink-50', iconColor: 'text-pink-600' },
+  { icon: 'Heart', name: 'Wedding Cards', slug: 'wedding-cards', count: 'Royal Designs', color: 'bg-rose-50', iconColor: 'text-rose-600' },
+  { icon: 'Layers', name: 'Brochures', slug: 'brochures', count: 'Tri & Bi Fold', color: 'bg-orange-50', iconColor: 'text-orange-600' },
+  { icon: 'Globe', name: 'Web Applications', slug: 'web-applications', count: 'Full Stack', color: 'bg-teal-50', iconColor: 'text-teal-600' },
+  { icon: 'Smartphone', name: 'Mobile Apps', slug: 'mobile-applications', count: 'iOS & Android', color: 'bg-indigo-50', iconColor: 'text-indigo-600' },
+  { icon: 'ShoppingBag', name: 'E-commerce', slug: 'ecommerce', count: 'Complete Store', color: 'bg-green-50', iconColor: 'text-green-600' },
+  { icon: 'Award', name: 'Logo Design', slug: 'logo-design', count: 'Brand Identity', color: 'bg-yellow-50', iconColor: 'text-yellow-600' },
+];
+
+const testimonials = [
+  { name: 'Priya Sharma', role: 'Business Owner', text: 'Star Graphix designed our business cards and they look absolutely stunning. The quality is exceptional and delivery was super fast!', rating: 5, avatar: 'PS' },
+  { name: 'Rahul Verma', role: 'Digital Marketer', text: 'We\'ve been using Star Graphix for all our social media content. The Instagram templates are creative and very on-brand for our business.', rating: 5, avatar: 'RV' },
+  { name: 'Anitha R.', role: 'Bride', text: 'Our wedding cards were designed beautifully by Star Graphix. The traditional design with gold foil was exactly what we wanted. Highly recommended!', rating: 5, avatar: 'AR' },
+  { name: 'Karthik M.', role: 'Startup Founder', text: 'They built our entire web application from scratch. The team is professional, delivers on time and the quality of work is top-notch.', rating: 5, avatar: 'KM' },
+];
+
+const stats = [
+  { number: '5000+', label: 'Happy Clients', icon: 'Users' },
+  { number: '25000+', label: 'Projects Completed', icon: 'Package' },
+  { number: '10+', label: 'Years of Excellence', icon: 'Award' },
+  { number: '24hr', label: 'Average Turnaround', icon: 'Clock' },
+];
+
+export default function Home() {
+  const navigate = useNavigate();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const goToSlide = useCallback((index) => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentSlide(index);
+    setTimeout(() => setIsAnimating(false), 500);
+  }, [isAnimating]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      goToSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [goToSlide]);
+
+  const slide = heroSlides[currentSlide];
+  const featuredProducts = products.slice(0, 8);
+  const bestSellers = getBestSellers();
+
+  return (
+    <main className="font-outfit">
+      {/* ===== HERO SECTION ===== */}
+      <section className={`relative bg-gradient-to-r ${slide.bg} overflow-hidden min-h-[520px] flex items-center transition-all duration-700`}>
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
+        </div>
+
+        <div className="container-custom py-12 md:py-16 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div className="animate-fade-in">
+              <span className="inline-flex items-center gap-1.5 bg-white bg-opacity-20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 backdrop-blur-sm">
+                <Icon name="Zap" size={12} /> {slide.tag}
+              </span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 leading-tight">
+                {slide.title}
+              </h1>
+              <p className="text-lg text-white text-opacity-90 font-semibold mb-2">{slide.subtitle}</p>
+              <p className="text-sm text-white text-opacity-75 mb-6 max-w-lg leading-relaxed">{slide.desc}</p>
+
+              <div className="flex flex-wrap gap-3">
+                <Link to={slide.ctaLink} className="btn-gold text-sm py-2.5 px-6 hover:shadow-lg">
+                  <Icon name="ArrowRight" size={16} /> {slide.cta}
+                </Link>
+                <Link to="/contact" className="flex items-center gap-2 bg-white bg-opacity-15 hover:bg-opacity-25 text-white font-semibold py-2.5 px-6 rounded-lg text-sm transition-all duration-200 backdrop-blur-sm border border-white border-opacity-30">
+                  {slide.ctaSecondary}
+                </Link>
+              </div>
+
+              {/* Stats row */}
+              <div className="flex flex-wrap gap-4 mt-8">
+                {[
+                  { label: '5000+ Clients', icon: 'Users' },
+                  { label: '24hr Delivery', icon: 'Zap' },
+                  { label: '100% Quality', icon: 'Shield' },
+                ].map((stat) => (
+                  <div key={stat.label} className="flex items-center gap-1.5 text-white text-opacity-90 text-xs font-medium">
+                    <Icon name={stat.icon} size={14} className="text-gold-400" />
+                    {stat.label}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="hidden lg:block">
+              <div className="relative">
+                <img
+                  src={slide.image}
+                  alt={slide.title}
+                  className="w-full h-80 object-cover rounded-2xl shadow-2xl border-4 border-white border-opacity-20"
+                />
+                <div className="absolute -bottom-4 -left-4 bg-white rounded-xl p-3 shadow-xl flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <Icon name="CheckCircle" size={20} className="text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-800">Print Ready</p>
+                    <p className="text-xs text-gray-500">Delivered in 24hrs</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Slide indicators */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          {heroSlides.map((_, i) => (
+            <button key={i} onClick={() => goToSlide(i)}
+              className={`h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white bg-opacity-40'}`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* ===== CATEGORY CARDS ===== */}
+      <section className="py-10 bg-white">
+        <div className="container-custom">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="section-title">Our Services</h2>
+            <Link to="/products" className="text-sm font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
+              View All <Icon name="ChevronRight" size={14} />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-3">
+            {serviceCards.map((service) => (
+              <Link key={service.slug} to={`/products?category=${service.slug}`}
+                className="group flex flex-col items-center gap-2 p-4 rounded-xl bg-white border border-gray-100 hover:border-primary-200 hover:shadow-card transition-all duration-200 cursor-pointer"
+              >
+                <div className={`w-12 h-12 rounded-xl ${service.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
+                  <Icon name={service.icon} size={22} className={service.iconColor} />
+                </div>
+                <p className="text-xs font-semibold text-gray-800 text-center leading-tight">{service.name}</p>
+                <span className="text-xs text-gray-400">{service.count}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== STATS BANNER ===== */}
+      <section className="py-8 bg-primary-600">
+        <div className="container-custom">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-white">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Icon name={stat.icon} size={20} className="text-gold-400" />
+                  <span className="text-2xl md:text-3xl font-black">{stat.number}</span>
+                </div>
+                <p className="text-red-200 text-sm font-medium">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== BEST SELLERS ===== */}
+      {bestSellers.length > 0 && (
+        <section className="py-10 bg-gray-50">
+          <div className="container-custom">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="section-title">Best Sellers</h2>
+                <p className="text-sm text-gray-500 mt-1">Our most popular services loved by clients</p>
+              </div>
+              <Link to="/products?filter=bestseller" className="text-sm font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
+                View All <Icon name="ChevronRight" size={14} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {bestSellers.slice(0, 4).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ===== PROMO BANNERS ===== */}
+      <section className="py-10 bg-white">
+        <div className="container-custom">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-700 to-primary-600 p-6 md:p-8">
+              <div className="absolute right-0 top-0 w-40 h-40 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <Icon name="Print" size={32} className="text-gold-400 mb-3" />
+              <h3 className="text-2xl font-bold text-white mb-2">Design & Printing</h3>
+              <p className="text-red-200 text-sm mb-4">Get 20% off on your first order of business cards, flyers & wedding cards</p>
+              <Link to="/products?category=design-printing" className="inline-flex items-center gap-2 bg-white text-primary-600 font-bold py-2.5 px-5 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                Order Now <Icon name="ArrowRight" size={14} />
+              </Link>
+            </div>
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-gray-900 to-gray-800 p-6 md:p-8">
+              <div className="absolute right-0 top-0 w-40 h-40 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <Icon name="Code" size={32} className="text-blue-400 mb-3" />
+              <h3 className="text-2xl font-bold text-white mb-2">Software Development</h3>
+              <p className="text-gray-400 text-sm mb-4">Custom web & mobile apps, e-commerce solutions with free consultation</p>
+              <Link to="/products?category=software-development" className="inline-flex items-center gap-2 bg-primary-600 text-white font-bold py-2.5 px-5 rounded-lg text-sm hover:bg-primary-700 transition-colors">
+                Get Started <Icon name="ArrowRight" size={14} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== ALL PRODUCTS ===== */}
+      <section className="py-10 bg-gray-50">
+        <div className="container-custom">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="section-title">Featured Services</h2>
+              <p className="text-sm text-gray-500 mt-1">Explore our complete range of design and tech solutions</p>
+            </div>
+            <Link to="/products" className="text-sm font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
+              View All <Icon name="ChevronRight" size={14} />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {featuredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== TESTIMONIALS ===== */}
+      <section className="py-10 bg-white">
+        <div className="container-custom">
+          <div className="text-center mb-8">
+            <h2 className="section-title">What Our Clients Say</h2>
+            <p className="text-gray-500 text-sm mt-2">Trusted by 5000+ happy clients across India</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {testimonials.map((t) => (
+              <div key={t.name} className="card p-5">
+                {/* Stars */}
+                <div className="flex items-center gap-0.5 mb-3">
+                  {[...Array(5)].map((_, i) => (
+                    <Icon key={i} name="StarFilled" size={14} className="text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3">"{t.text}"</p>
+                <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+                  <div className="w-9 h-9 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                    {t.avatar}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-800">{t.name}</p>
+                    <p className="text-xs text-gray-500">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== CTA SECTION ===== */}
+      <section className="py-14 bg-gradient-brand">
+        <div className="container-custom text-center">
+          <h2 className="text-3xl font-black text-white mb-3">Ready to Get Started?</h2>
+          <p className="text-red-200 mb-6 text-sm max-w-lg mx-auto">Join 5000+ satisfied clients. Professional designs delivered fast with unlimited revisions.</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link to="/products" className="btn-gold py-3 px-8">
+              <Icon name="ArrowRight" size={18} /> Explore Services
+            </Link>
+            <Link to="/contact" className="flex items-center gap-2 bg-white bg-opacity-15 hover:bg-opacity-25 text-white font-semibold py-3 px-8 rounded-lg text-sm transition-all duration-200 border border-white border-opacity-30">
+              <Icon name="Phone" size={16} /> Contact Us
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
