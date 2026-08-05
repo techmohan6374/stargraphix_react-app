@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom';
 import Icon from '../components/icons/Icons';
 
 const team = [
-  { name: 'Mohan Kumar', role: 'Founder & Creative Director', initials: 'MK', color: 'bg-primary-600' },
+  { name: 'Veerasamy, Manohar', role: 'CEO (Chief Executive Officer)', initials: 'VM', color: 'bg-primary-600' },
+  { name: 'Mohanraj', role: 'COO (Chief Operating Officer)', initials: 'MR', color: 'bg-gold-500' },
   { name: 'Priya Rajan', role: 'Senior Graphic Designer', initials: 'PR', color: 'bg-purple-600' },
   { name: 'Karthik S.', role: 'Lead Developer', initials: 'KS', color: 'bg-blue-600' },
-  { name: 'Anitha R.', role: 'Client Relations', initials: 'AR', color: 'bg-green-600' },
 ];
 
 const values = [

@@ -1,11 +1,12 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './context/AuthContext';
 
 // Layout
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import DonateModal from './components/ui/DonateModal';
 
 // Pages
 import Home from './pages/Home';
@@ -19,6 +20,7 @@ import Orders from './pages/Orders';
 import Profile from './pages/Profile';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Portal from './pages/Portal';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -46,6 +48,14 @@ function ProtectedRoute({ children, adminOnly = false }) {
 
 // Layout wrapper for public pages (with header + footer)
 function PublicLayout({ children }) {
+  const [donateOpen, setDonateOpen] = useState(false);
+
+  useEffect(() => {
+    const handleTrigger = () => setDonateOpen(true);
+    window.addEventListener('trigger-donate', handleTrigger);
+    return () => window.removeEventListener('trigger-donate', handleTrigger);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -53,6 +63,7 @@ function PublicLayout({ children }) {
         {children}
       </div>
       <Footer />
+      <DonateModal isOpen={donateOpen} onClose={() => setDonateOpen(false)} />
     </div>
   );
 }
@@ -94,6 +105,7 @@ export default function App() {
         <Route path="/cart" element={<PublicLayout><Cart /></PublicLayout>} />
         <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
         <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
+        <Route path="/portal" element={<PublicLayout><Portal /></PublicLayout>} />
 
         {/* Auth */}
         <Route path="/login" element={<Login />} />

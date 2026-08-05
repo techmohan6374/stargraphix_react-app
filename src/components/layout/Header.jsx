@@ -186,6 +186,15 @@ export default function Header() {
                 {cat.name}
               </Link>
             ))}
+            <Link to="/portal" className="px-3 py-2 text-sm font-bold text-primary-600 hover:bg-primary-50 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 border border-primary-100 bg-primary-50/30">
+              <Icon name="Zap" size={14} className="text-primary-600" />Creative Portal
+            </Link>
+            <button
+              onClick={() => window.dispatchEvent(new Event('trigger-donate'))}
+              className="px-3 py-2 text-sm font-bold text-gold-600 hover:bg-gold-50 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 border border-gold-200 bg-gold-50/50"
+            >
+              <Icon name="HeartFilled" size={14} className="text-gold-500 animate-pulse" />Donate
+            </button>
             <Link to="/about" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all whitespace-nowrap">About</Link>
             <Link to="/contact" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all whitespace-nowrap">Contact</Link>
           </div>
@@ -213,7 +222,21 @@ export default function Header() {
                 </Link>
               ))}
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-100 flex gap-2">
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <Link to="/portal" onClick={() => setMobileMenuOpen(false)} className="w-full text-center block px-3 py-2.5 text-sm font-bold text-primary-600 bg-primary-50 border border-primary-100 rounded-lg transition-all flex items-center justify-center gap-1.5 mb-2">
+                <Icon name="Zap" size={14} className="text-primary-600" /> Creative Portal
+              </Link>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  window.dispatchEvent(new Event('trigger-donate'));
+                }}
+                className="w-full text-center block px-3 py-2.5 text-sm font-bold text-gold-600 bg-gold-50/50 border border-gold-200 rounded-lg transition-all flex items-center justify-center gap-1.5 mb-2"
+              >
+                <Icon name="HeartFilled" size={14} className="text-gold-500 animate-pulse" /> Donate Star Graphix
+              </button>
+            </div>
+            <div className="flex gap-2">
               <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary-600 rounded-lg transition-all">About</Link>
               <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary-600 rounded-lg transition-all">Contact</Link>
             </div>

@@ -22,20 +22,17 @@ export default function Footer() {
               Your trusted partner for premium design, printing & software development solutions. Crafting excellence since 2015.
             </p>
             <div className="flex items-center gap-3">
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-all duration-200">
+              <a href="https://www.facebook.com/veera.samy.104" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-all duration-200">
                 <Icon name="Facebook" size={16} />
               </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-all duration-200">
+              <a href="https://www.instagram.com/stargraphix_official?igsh=MXYycXpmejFtdGs4OA==" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-all duration-200">
                 <Icon name="Instagram" size={16} />
               </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-all duration-200">
-                <Icon name="Twitter" size={16} />
+              <a href="https://t.me/mntechy" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-all duration-200">
+                <Icon name="Telegram" size={16} />
               </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-green-600 hover:text-white transition-all duration-200">
+              <a href="https://api.whatsapp.com/send?phone=+919894033883" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-green-600 hover:text-white transition-all duration-200">
                 <Icon name="Whatsapp" size={16} />
-              </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-red-600 hover:text-white transition-all duration-200">
-                <Icon name="Youtube" size={16} />
               </a>
             </div>
           </div>
@@ -93,29 +90,41 @@ export default function Footer() {
           {/* Contact & Info */}
           <div>
             <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Icon name="MapPin" size={14} className="text-primary-400" /> Contact Us
+              <Icon name="MapPin" size={14} className="text-primary-400" /> Our Branches
             </h3>
             <ul className="space-y-3">
-              <li className="flex items-start gap-3 text-sm text-gray-400">
+              <li className="flex items-start gap-2.5 text-sm text-gray-400">
                 <Icon name="MapPin" size={16} className="text-primary-400 mt-0.5 flex-shrink-0" />
-                <span>123, Design Street, Anna Nagar, Chennai - 600040, Tamil Nadu, India</span>
+                <span>Ponnammapet Gate, Salem, Tamilnadu</span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-gray-400">
-                <Icon name="Phone" size={16} className="text-primary-400 flex-shrink-0" />
-                <a href="tel:+919876543210" className="hover:text-white transition-colors">+91 98765 43210</a>
+              <li className="flex items-start gap-2.5 text-sm text-gray-400 border-b border-gray-900 pb-2">
+                <Icon name="MapPin" size={16} className="text-primary-400 mt-0.5 flex-shrink-0" />
+                <span>New Bus Stand, Salem, Tamilnadu</span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-gray-400">
-                <Icon name="Mail" size={16} className="text-primary-400 flex-shrink-0" />
-                <a href="mailto:hello@stargraphix.in" className="hover:text-white transition-colors">hello@stargraphix.in</a>
+              <li className="flex flex-col gap-1 text-sm text-gray-400">
+                <span className="text-[10px] text-gray-500 font-bold uppercase">Customer Support</span>
+                <div className="flex flex-col pl-6 relative">
+                  <Icon name="Phone" size={14} className="text-primary-400 absolute left-0 top-1" />
+                  <a href="tel:+919894033883" className="hover:text-white transition-colors">+91 98940 33883</a>
+                  <a href="tel:+918056580402" className="hover:text-white transition-colors">+91 80565 80402</a>
+                </div>
               </li>
-              <li className="flex items-center gap-3 text-sm text-gray-400">
+              <li className="flex flex-col gap-1 text-sm text-gray-400">
+                <span className="text-[10px] text-gray-500 font-bold uppercase">Email Support</span>
+                <div className="flex flex-col pl-6 relative">
+                  <Icon name="Mail" size={14} className="text-primary-400 absolute left-0 top-1" />
+                  <a href="mailto:stargraphix2010@gmail.com" className="hover:text-white transition-colors text-xs truncate">stargraphix2010@gmail.com</a>
+                  <a href="mailto:starveera2010@gmail.com" className="hover:text-white transition-colors text-xs truncate">starveera2010@gmail.com</a>
+                </div>
+              </li>
+              <li className="flex items-center gap-2.5 text-sm text-gray-400">
                 <Icon name="Clock" size={16} className="text-primary-400 flex-shrink-0" />
-                <span>Mon - Sat: 9:00 AM – 7:00 PM</span>
+                <span>Mon - Sun: 10:00 AM – 9:00 PM</span>
               </li>
             </ul>
             <div className="mt-4 p-3 bg-gray-800 rounded-lg">
-              <p className="text-xs text-gray-400 mb-1">Quick WhatsApp Order</p>
-              <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer"
+              <p className="text-xs text-gray-400 mb-1">WhatsApp Order Support</p>
+              <a href="https://api.whatsapp.com/send?phone=+919894033883" target="_blank" rel="noreferrer"
                 className="flex items-center gap-2 text-sm font-semibold text-green-400 hover:text-green-300 transition-colors">
                 <Icon name="Whatsapp" size={16} /> Chat on WhatsApp
               </a>
@@ -156,6 +165,13 @@ export default function Footer() {
               &copy; {currentYear} Star Graphix. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
+              <Link to="/portal" className="text-primary-400 hover:text-primary-300 text-xs font-semibold transition-colors">Creative Portal</Link>
+              <button 
+                onClick={() => window.dispatchEvent(new Event('trigger-donate'))}
+                className="text-gold-400 hover:text-gold-300 text-xs font-bold transition-colors cursor-pointer"
+              >
+                Donate Star Graphix
+              </button>
               <Link to="/about" className="text-gray-500 hover:text-gray-300 text-xs transition-colors">About</Link>
               <Link to="/contact" className="text-gray-500 hover:text-gray-300 text-xs transition-colors">Contact</Link>
               <span className="text-gray-500 text-xs">Privacy Policy</span>

@@ -41,10 +41,10 @@ export default function Contact() {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-gray-900">Get In Touch</h2>
             {[
-              { icon: 'MapPin', title: 'Visit Us', detail: '123, Design Street\nAnna Nagar, Chennai\nTamil Nadu - 600040' },
-              { icon: 'Phone', title: 'Call Us', detail: '+91 98765 43210\n+91 98765 43211', isLink: true, linkPrefix: 'tel:' },
-              { icon: 'Mail', title: 'Email Us', detail: 'hello@stargraphix.in\nsupport@stargraphix.in', isLink: true, linkPrefix: 'mailto:' },
-              { icon: 'Clock', title: 'Business Hours', detail: 'Mon – Sat: 9:00 AM – 7:00 PM\nSunday: 10:00 AM – 2:00 PM' },
+              { icon: 'MapPin', title: 'Our Branches', detail: '📍 Ponnammapet Gate, Salem, Tamilnadu\n📍 New Bus Stand, Salem, Tamilnadu' },
+              { icon: 'Phone', title: 'Customer Support', detail: '+91 98940 33883\n+91 80565 80402', isLink: true, linkPrefix: 'tel:' },
+              { icon: 'Mail', title: 'Email Support', detail: 'stargraphix2010@gmail.com\nstarveera2010@gmail.com', isLink: true, linkPrefix: 'mailto:' },
+              { icon: 'Clock', title: 'Support Hours', detail: 'Mon – Sun: 10:00 AM – 9:00 PM' },
             ].map((item) => (
               <div key={item.title} className="flex gap-4 p-4 bg-white rounded-xl border border-gray-100">
                 <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0">
@@ -52,7 +52,17 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800 text-sm mb-1">{item.title}</p>
-                  <p className="text-gray-500 text-xs leading-relaxed whitespace-pre-line">{item.detail}</p>
+                  {item.isLink ? (
+                    <div className="text-gray-500 text-xs leading-relaxed flex flex-col">
+                      {item.detail.split('\n').map((val, idx) => (
+                        <a key={idx} href={`${item.linkPrefix}${val.replace(/\s+/g, '')}`} className="hover:text-primary-600 transition-colors">
+                          {val}
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-xs leading-relaxed whitespace-pre-line">{item.detail}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -62,17 +72,29 @@ export default function Contact() {
               <p className="font-semibold text-gray-800 text-sm mb-3">Follow Us</p>
               <div className="flex gap-2">
                 {[
-                  { icon: 'Facebook', color: 'hover:bg-blue-600' },
-                  { icon: 'Instagram', color: 'hover:bg-pink-600' },
-                  { icon: 'Twitter', color: 'hover:bg-sky-500' },
-                  { icon: 'Youtube', color: 'hover:bg-red-600' },
-                  { icon: 'Whatsapp', color: 'hover:bg-green-600' },
+                  { icon: 'Facebook', color: 'hover:bg-blue-600', url: 'https://www.facebook.com/veera.samy.104' },
+                  { icon: 'Instagram', color: 'hover:bg-pink-600', url: 'https://www.instagram.com/stargraphix_official?igsh=MXYycXpmejFtdGs4OA==' },
+                  { icon: 'Telegram', color: 'hover:bg-sky-500', url: 'https://t.me/mntechy' },
+                  { icon: 'Whatsapp', color: 'hover:bg-green-600', url: 'https://api.whatsapp.com/send?phone=+919894033883' },
                 ].map((s) => (
-                  <a key={s.icon} href="#" className={`w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:text-white ${s.color} transition-all duration-200`}>
+                  <a key={s.icon} href={s.url} target="_blank" rel="noreferrer" className={`w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:text-white ${s.color} transition-all duration-200`}>
                     <Icon name={s.icon} size={16} />
                   </a>
                 ))}
               </div>
+            </div>
+
+            {/* Donate Card */}
+            <div className="p-4 bg-gradient-to-br from-gold-50 to-amber-50 rounded-xl border border-gold-200/50 shadow-sm flex flex-col items-center text-center">
+              <Icon name="HeartFilled" size={24} className="text-gold-500 mb-2 animate-pulse" />
+              <p className="font-bold text-gray-800 text-sm mb-1">Support Star Graphix</p>
+              <p className="text-gray-500 text-[11px] leading-relaxed mb-3">Help us keep developing creative tools and solutions for businesses.</p>
+              <button
+                onClick={() => window.dispatchEvent(new Event('trigger-donate'))}
+                className="w-full bg-gold-500 hover:bg-gold-600 text-white font-bold text-xs py-2 px-4 rounded-lg shadow-sm transition-all flex items-center justify-center gap-1.5"
+              >
+                Donate via UPI
+              </button>
             </div>
           </div>
 
