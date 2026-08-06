@@ -51,7 +51,7 @@ export default function Header() {
     <header className={`fixed top-0 left-0 right-0 z-50 bg-white transition-shadow duration-300 ${scrolled ? 'shadow-header' : 'border-b border-gray-100'}`}>
       {/* Top announcement bar */}
       <div className="bg-primary-600 text-white text-center text-xs font-medium py-1.5 px-4">
-        <span>Free consultation on all orders above ₹999 &nbsp;•&nbsp; Call us: +91 98765 43210</span>
+        <span>Free consultation on all orders above ₹999 &nbsp;•&nbsp; Call us: +91 80565 80402</span>
       </div>
 
       {/* Main header */}
@@ -189,6 +189,9 @@ export default function Header() {
             <Link to="/portal" className="px-3 py-2 text-sm font-bold text-primary-600 hover:bg-primary-50 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 border border-primary-100 bg-primary-50/30">
               <Icon name="Zap" size={14} className="text-primary-600" />Creative Portal
             </Link>
+            <Link to="/free-tools" className="px-3 py-2 text-sm font-bold text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 border border-indigo-100 bg-indigo-50/30">
+              <Icon name="Cpu" size={14} className="text-indigo-600" />Free AI Tools
+            </Link>
             <button
               onClick={() => window.dispatchEvent(new Event('trigger-donate'))}
               className="px-3 py-2 text-sm font-bold text-gold-600 hover:bg-gold-50 rounded-lg transition-all whitespace-nowrap flex items-center gap-1.5 border border-gold-200 bg-gold-50/50"
@@ -225,6 +228,9 @@ export default function Header() {
             <div className="mt-3 pt-3 border-t border-gray-100">
               <Link to="/portal" onClick={() => setMobileMenuOpen(false)} className="w-full text-center block px-3 py-2.5 text-sm font-bold text-primary-600 bg-primary-50 border border-primary-100 rounded-lg transition-all flex items-center justify-center gap-1.5 mb-2">
                 <Icon name="Zap" size={14} className="text-primary-600" /> Creative Portal
+              </Link>
+              <Link to="/free-tools" onClick={() => setMobileMenuOpen(false)} className="w-full text-center block px-3 py-2.5 text-sm font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-lg transition-all flex items-center justify-center gap-1.5 mb-2">
+                <Icon name="Cpu" size={14} className="text-indigo-600" /> Free AI Tools
               </Link>
               <button
                 onClick={() => {

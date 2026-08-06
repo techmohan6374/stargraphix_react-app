@@ -21,6 +21,7 @@ import Profile from './pages/Profile';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Portal from './pages/Portal';
+import FreeTools from './pages/FreeTools';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -106,6 +107,7 @@ export default function App() {
         <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
         <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
         <Route path="/portal" element={<PublicLayout><Portal /></PublicLayout>} />
+        <Route path="/free-tools" element={<PublicLayout><FreeTools /></PublicLayout>} />
 
         {/* Auth */}
         <Route path="/login" element={<Login />} />

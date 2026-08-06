@@ -150,3 +150,17 @@
   font-family: 'Outfit', sans-serif !important;
   font-weight: 500 !important;
 }
+
+/* Infinite vertical marquee */
+@keyframes marquee-vertical {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+.animate-marquee-vertical {
+  animation: marquee-vertical 20s linear infinite;
+}
+
+.animate-marquee-vertical:hover {
+  animation-play-state: paused;
+}

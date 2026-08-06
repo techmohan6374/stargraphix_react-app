@@ -109,7 +109,7 @@ export default function Checkout() {
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-gray-700 mb-1 block">Phone Number *</label>
-                    <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+91 98765 43210" maxLength={10} className={inputClass('phone')} />
+                    <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+91 80565 80402" maxLength={10} className={inputClass('phone')} />
                     {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                   </div>
                   <div>

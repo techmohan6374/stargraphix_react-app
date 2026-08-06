@@ -128,7 +128,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-gray-700 mb-1 block">Phone</label>
-                    <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+91 98765 43210" className="input-field" />
+                    <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+91 80565 80402" className="input-field" />
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-gray-700 mb-1 block">Service Needed</label>

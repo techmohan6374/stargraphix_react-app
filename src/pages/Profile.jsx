@@ -61,7 +61,7 @@ export default function Profile() {
               </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-1 block">Phone Number</label>
-                <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+91 98765 43210" className="input-field" />
+                <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+91 80565 80402" className="input-field" />
               </div>
               <button onClick={handleSave} className="btn-primary text-sm py-2.5 px-5">
                 <Icon name="Check" size={16} /> Save Changes

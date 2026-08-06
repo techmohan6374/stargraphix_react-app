@@ -70,6 +70,17 @@ const stats = [
   { number: '24hr', label: 'Average Turnaround', icon: 'Clock' },
 ];
 
+const liveActivity = [
+  { item: 'Business Cards dispatched for Salem Bakery', time: '2 mins ago', icon: 'FileText', badge: 'Printing', color: 'bg-blue-50 text-blue-600' },
+  { item: 'Web App launched for Salem Agri Farm', time: '15 mins ago', icon: 'Globe', badge: 'Software', color: 'bg-teal-50 text-teal-600' },
+  { item: 'Flyer Design approved for Grand Opening Sale', time: '35 mins ago', icon: 'Image', badge: 'Design', color: 'bg-red-50 text-red-600' },
+  { item: 'Instagram Templates set created for Fitness Center', time: '1 hr ago', icon: 'Instagram', badge: 'Socials', color: 'bg-pink-50 text-pink-600' },
+  { item: 'Banners dispatched for Salem Exhibition Gate', time: '2 hrs ago', icon: 'Print', badge: 'Printing', color: 'bg-orange-50 text-orange-600' },
+  { item: 'Logo Design approved for Apex Tech Solutions', time: '4 hrs ago', icon: 'Award', badge: 'Branding', color: 'bg-yellow-50 text-yellow-600' },
+  { item: 'Mobile App updated on App Store for RideSalem', time: '6 hrs ago', icon: 'Smartphone', badge: 'Software', color: 'bg-indigo-50 text-indigo-600' },
+  { item: 'Wedding Invitations shipped to Salem Central', time: '8 hrs ago', icon: 'Heart', badge: 'Design', color: 'bg-rose-50 text-rose-600' },
+];
+
 export default function Home() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -276,6 +287,61 @@ export default function Home() {
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== LIVE ACTIVITY FEED (Vertical Infinite Scroller) ===== */}
+      <section className="py-12 bg-white border-t border-b border-gray-100">
+        <div className="container-custom">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center font-outfit">
+            {/* Left Content Column */}
+            <div className="lg:col-span-5 space-y-4 text-left">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-600 text-xs font-semibold uppercase tracking-wider">
+                <Icon name="Activity" size={12} className="text-primary-600 animate-pulse" /> Live Activity Feed
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-brand-dark leading-tight">
+                Our Studios are <span className="text-gradient">Active & Buzzing</span>
+              </h2>
+              <p className="text-gray-500 text-sm leading-relaxed">
+                We're continuously designing, printing, and coding for businesses. Check out what's currently processing in our Salem print shops and software development queues.
+              </p>
+              <div className="pt-2">
+                <Link to="/contact" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 hover:text-primary-700 transition-colors uppercase tracking-wider">
+                  Launch Your Project Now <Icon name="ArrowRight" size={12} />
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Infinite Scroll Ticker Column */}
+            <div className="lg:col-span-7 bg-gray-50/50 rounded-2xl border border-gray-150 p-4 md:p-6 overflow-hidden h-[280px] relative">
+              {/* Fade top/bottom overlay for premium looks */}
+              <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-gray-50 to-transparent z-10 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-gray-50 to-transparent z-10 pointer-events-none" />
+              
+              {/* Scroller container */}
+              <div className="relative h-full overflow-hidden">
+                <div className="flex flex-col gap-3 animate-marquee-vertical hover:[animation-play-state:paused] cursor-pointer">
+                  {/* Render twice for seamless looping */}
+                  {[...liveActivity, ...liveActivity].map((activity, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3.5 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-primary-100 transition-all duration-200">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-8 h-8 rounded-lg ${activity.color.split(' ')[0]} flex items-center justify-center flex-shrink-0`}>
+                          <Icon name={activity.icon} size={16} className={activity.color.split(' ')[1]} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-gray-800 truncate">{activity.item}</p>
+                          <span className="text-[9px] text-gray-400 font-semibold">{activity.time}</span>
+                        </div>
+                      </div>
+                      <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${activity.color} bg-opacity-10 flex-shrink-0`}>
+                        {activity.badge}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
