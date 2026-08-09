@@ -320,58 +320,53 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== CLIENT TRUST STRIP (Infinite Horizontal Scroll) ===== */}
-      <section className="py-8 bg-gray-50 border-t border-b border-gray-200">
-        <div className="container-custom mb-5 flex items-center gap-3 justify-center">
-          <div className="h-px flex-1 max-w-[80px] bg-gray-300" />
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Trusted by businesses across India</p>
-          <div className="h-px flex-1 max-w-[80px] bg-gray-300" />
+      {/* ===== CLIENT TRUST STRIP ===== */}
+      <section className="py-10 bg-white border-t border-gray-100">
+        {/* Label */}
+        <div className="container-custom mb-7 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-300">Trusted by businesses across India</p>
         </div>
         <div className="relative overflow-hidden">
-          {/* Fade left/right edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
+          {/* Fade edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-28 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-28 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
           <div className="flex animate-marquee-horizontal cursor-pointer" style={{width: 'max-content'}}>
             {[
-              { name: 'SSA Invoice', initials: 'SSA', color: '#CC0000', bg: '#fff1f1', border: '#fecaca' },
-              { name: 'Aadhira Books', initials: 'AB', color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
-              { name: 'Salem Agri Farm', initials: 'SAF', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
-              { name: 'Apex Tech Solutions', initials: 'ATS', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
-              { name: 'RideSalem', initials: 'RS', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
-              { name: 'Grand Furnishings', initials: 'GF', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
-              { name: 'Priya Sweets', initials: 'PS', color: '#db2777', bg: '#fdf2f8', border: '#fbcfe8' },
-              { name: 'Nova Clinic', initials: 'NC', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
-              { name: 'StyleHub', initials: 'SH', color: '#9333ea', bg: '#faf5ff', border: '#e9d5ff' },
-              { name: 'Salem Bakery', initials: 'SB', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa' },
+              { name: 'SSA Invoice',         initials: 'SSA', color: '#CC0000' },
+              { name: 'Aadhira Books',       initials: 'AB',  color: '#7c3aed' },
+              { name: 'Salem Agri Farm',     initials: 'SAF', color: '#059669' },
+              { name: 'Apex Tech Solutions', initials: 'ATS', color: '#2563eb' },
+              { name: 'RideSalem',           initials: 'RS',  color: '#d97706' },
+              { name: 'Grand Furnishings',   initials: 'GF',  color: '#0891b2' },
+              { name: 'Priya Sweets',        initials: 'PS',  color: '#db2777' },
+              { name: 'Nova Clinic',         initials: 'NC',  color: '#16a34a' },
+              { name: 'StyleHub',            initials: 'SH',  color: '#9333ea' },
+              { name: 'Salem Bakery',        initials: 'SB',  color: '#ea580c' },
               // duplicate for seamless loop
-              { name: 'SSA Invoice', initials: 'SSA', color: '#CC0000', bg: '#fff1f1', border: '#fecaca' },
-              { name: 'Aadhira Books', initials: 'AB', color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
-              { name: 'Salem Agri Farm', initials: 'SAF', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
-              { name: 'Apex Tech Solutions', initials: 'ATS', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
-              { name: 'RideSalem', initials: 'RS', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
-              { name: 'Grand Furnishings', initials: 'GF', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
-              { name: 'Priya Sweets', initials: 'PS', color: '#db2777', bg: '#fdf2f8', border: '#fbcfe8' },
-              { name: 'Nova Clinic', initials: 'NC', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
-              { name: 'StyleHub', initials: 'SH', color: '#9333ea', bg: '#faf5ff', border: '#e9d5ff' },
-              { name: 'Salem Bakery', initials: 'SB', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa' },
+              { name: 'SSA Invoice',         initials: 'SSA', color: '#CC0000' },
+              { name: 'Aadhira Books',       initials: 'AB',  color: '#7c3aed' },
+              { name: 'Salem Agri Farm',     initials: 'SAF', color: '#059669' },
+              { name: 'Apex Tech Solutions', initials: 'ATS', color: '#2563eb' },
+              { name: 'RideSalem',           initials: 'RS',  color: '#d97706' },
+              { name: 'Grand Furnishings',   initials: 'GF',  color: '#0891b2' },
+              { name: 'Priya Sweets',        initials: 'PS',  color: '#db2777' },
+              { name: 'Nova Clinic',         initials: 'NC',  color: '#16a34a' },
+              { name: 'StyleHub',            initials: 'SH',  color: '#9333ea' },
+              { name: 'Salem Bakery',        initials: 'SB',  color: '#ea580c' },
             ].map((client, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-3 mx-3 px-4 py-2.5 rounded-xl bg-white hover:shadow-card transition-all duration-200 group flex-shrink-0"
-                style={{
-                  minWidth: '175px',
-                  border: `1.5px solid ${client.border}`,
-                  borderLeft: `3px solid ${client.color}`,
-                }}
+                className="flex items-center gap-2.5 mx-3 px-5 py-2.5 rounded-full flex-shrink-0 transition-all duration-200 group"
+                style={{ border: '1px solid #e5e7eb', background: '#fff' }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#f9fafb'; e.currentTarget.style.borderColor = '#9ca3af'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
               >
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
-                  style={{background: client.bg, color: client.color}}
-                >
-                  {client.initials}
-                </div>
-                <span className="text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors whitespace-nowrap">{client.name}</span>
+                {/* Tiny brand dot */}
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: client.color, flexShrink: 0, display: 'inline-block', opacity: 0.9 }} />
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#374151', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
+                  {client.name}
+                </span>
               </div>
             ))}
           </div>
