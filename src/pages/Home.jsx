@@ -40,6 +40,39 @@ const heroSlides = [
     tag: 'Social Media',
     image: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=600&h=400&fit=crop',
   },
+  {
+    title: 'Wedding Cards & Invitations',
+    subtitle: 'Traditional • Modern • Royal Designs',
+    desc: 'Beautiful wedding invitations crafted with love. Gold foil, embossed prints and digital formats available.',
+    cta: 'View Wedding Cards',
+    ctaLink: '/products?category=wedding-cards',
+    ctaSecondary: 'Get a Quote',
+    bg: 'from-rose-800 via-pink-700 to-rose-600',
+    tag: 'Wedding Designs',
+    image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&h=400&fit=crop',
+  },
+  {
+    title: 'Brand Identity & Logo Design',
+    subtitle: 'Make Your Brand Unforgettable',
+    desc: 'We craft logos and brand identities that stand out. Unique, memorable, and built to last.',
+    cta: 'Design My Logo',
+    ctaLink: '/products?category=logo-design',
+    ctaSecondary: 'See Portfolio',
+    bg: 'from-amber-700 via-orange-600 to-yellow-600',
+    tag: 'Branding',
+    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&h=400&fit=crop',
+  },
+  {
+    title: 'E-Commerce Solutions',
+    subtitle: 'Sell Online — Start Earning Today',
+    desc: 'Full-featured online stores built fast. Payment gateway, inventory, and delivery integration included.',
+    cta: 'Build My Store',
+    ctaLink: '/products?category=ecommerce',
+    ctaSecondary: 'Free Consultation',
+    bg: 'from-teal-800 via-teal-700 to-emerald-700',
+    tag: 'E-Commerce',
+    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&h=400&fit=crop',
+  },
 ];
 
 // Service category cards
@@ -171,8 +204,24 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Prev / Next arrows */}
+        <button
+          onClick={() => goToSlide((currentSlide - 1 + heroSlides.length) % heroSlides.length)}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all duration-200 border border-white/30"
+          aria-label="Previous slide"
+        >
+          <Icon name="ChevronLeft" size={20} />
+        </button>
+        <button
+          onClick={() => goToSlide((currentSlide + 1) % heroSlides.length)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all duration-200 border border-white/30"
+          aria-label="Next slide"
+        >
+          <Icon name="ChevronRight" size={20} />
+        </button>
+
         {/* Slide indicators */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
           {heroSlides.map((_, i) => (
             <button key={i} onClick={() => goToSlide(i)}
               className={`h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white bg-opacity-40'}`}
@@ -270,6 +319,65 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ===== CLIENT TRUST STRIP (Infinite Horizontal Scroll) ===== */}
+      <section className="py-8 bg-gray-50 border-t border-b border-gray-200">
+        <div className="container-custom mb-5 flex items-center gap-3 justify-center">
+          <div className="h-px flex-1 max-w-[80px] bg-gray-300" />
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Trusted by businesses across India</p>
+          <div className="h-px flex-1 max-w-[80px] bg-gray-300" />
+        </div>
+        <div className="relative overflow-hidden">
+          {/* Fade left/right edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
+
+          <div className="flex animate-marquee-horizontal cursor-pointer" style={{width: 'max-content'}}>
+            {[
+              { name: 'SSA Invoice', initials: 'SSA', color: '#CC0000', bg: '#fff1f1', border: '#fecaca' },
+              { name: 'Aadhira Books', initials: 'AB', color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
+              { name: 'Salem Agri Farm', initials: 'SAF', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
+              { name: 'Apex Tech Solutions', initials: 'ATS', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
+              { name: 'RideSalem', initials: 'RS', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+              { name: 'Grand Furnishings', initials: 'GF', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
+              { name: 'Priya Sweets', initials: 'PS', color: '#db2777', bg: '#fdf2f8', border: '#fbcfe8' },
+              { name: 'Nova Clinic', initials: 'NC', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
+              { name: 'StyleHub', initials: 'SH', color: '#9333ea', bg: '#faf5ff', border: '#e9d5ff' },
+              { name: 'Salem Bakery', initials: 'SB', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa' },
+              // duplicate for seamless loop
+              { name: 'SSA Invoice', initials: 'SSA', color: '#CC0000', bg: '#fff1f1', border: '#fecaca' },
+              { name: 'Aadhira Books', initials: 'AB', color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
+              { name: 'Salem Agri Farm', initials: 'SAF', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
+              { name: 'Apex Tech Solutions', initials: 'ATS', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
+              { name: 'RideSalem', initials: 'RS', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+              { name: 'Grand Furnishings', initials: 'GF', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
+              { name: 'Priya Sweets', initials: 'PS', color: '#db2777', bg: '#fdf2f8', border: '#fbcfe8' },
+              { name: 'Nova Clinic', initials: 'NC', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
+              { name: 'StyleHub', initials: 'SH', color: '#9333ea', bg: '#faf5ff', border: '#e9d5ff' },
+              { name: 'Salem Bakery', initials: 'SB', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa' },
+            ].map((client, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 mx-3 px-4 py-2.5 rounded-xl bg-white hover:shadow-card transition-all duration-200 group flex-shrink-0"
+                style={{
+                  minWidth: '175px',
+                  border: `1.5px solid ${client.border}`,
+                  borderLeft: `3px solid ${client.color}`,
+                }}
+              >
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+                  style={{background: client.bg, color: client.color}}
+                >
+                  {client.initials}
+                </div>
+                <span className="text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors whitespace-nowrap">{client.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
 
       {/* ===== ALL PRODUCTS ===== */}
       <section className="py-10 bg-gray-50">

@@ -59,6 +59,21 @@ export function AuthProvider({ children }) {
     return { success: false, error: 'Invalid credentials' };
   };
 
+  const loginTestUser = () => {
+    const testUser = {
+      id: 'test_user_001',
+      name: 'Test User',
+      email: 'testuser@stargraphix.demo',
+      photo: null,
+      role: 'user',
+      provider: 'test',
+      joinedAt: new Date().toISOString(),
+    };
+    localStorage.setItem('sg_user', JSON.stringify(testUser));
+    setUser(testUser);
+    return testUser;
+  };
+
   const logout = () => {
     localStorage.removeItem('sg_user');
     setUser(null);
@@ -71,7 +86,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, loginAdmin, logout, updateProfile, isAdmin: user?.role === 'admin', isLoggedIn: !!user }}>
+    <AuthContext.Provider value={{ user, loading, loginWithGoogle, loginAdmin, loginTestUser, logout, updateProfile, isAdmin: user?.role === 'admin', isLoggedIn: !!user }}>
       {children}
     </AuthContext.Provider>
   );

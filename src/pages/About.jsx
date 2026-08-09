@@ -4,6 +4,8 @@ import Icon from '../components/icons/Icons';
 const team = [
   { name: 'Veerasamy, Manohar', role: 'CEO (Chief Executive Officer)', initials: 'VM', color: 'bg-primary-600' },
   { name: 'Mohanraj', role: 'COO (Chief Operating Officer)', initials: 'MR', color: 'bg-gold-500' },
+  { name: 'Nandha Kumar', role: 'Business Management', initials: 'NK', color: 'bg-emerald-600' },
+  { name: 'Sumathi', role: 'Senior Marketing Executive', initials: 'SM', color: 'bg-pink-600' },
   { name: 'Priya Rajan', role: 'Senior Graphic Designer', initials: 'PR', color: 'bg-purple-600' },
   { name: 'Karthik S.', role: 'Lead Developer', initials: 'KS', color: 'bg-blue-600' },
 ];
@@ -89,7 +91,7 @@ export default function About() {
             <h2 className="section-title">Meet the Team</h2>
             <p className="text-gray-500 text-sm mt-2">The talented people behind Star Graphix</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
             {team.map((member) => (
               <div key={member.name} className="text-center">
                 <div className={`w-20 h-20 rounded-full ${member.color} flex items-center justify-center text-white font-black text-xl mx-auto mb-3`}>

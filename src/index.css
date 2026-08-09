@@ -164,3 +164,18 @@
 .animate-marquee-vertical:hover {
   animation-play-state: paused;
 }
+
+/* Infinite horizontal marquee */
+@keyframes marquee-horizontal {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-horizontal {
+  animation: marquee-horizontal 28s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-horizontal:hover {
+  animation-play-state: paused;
+}

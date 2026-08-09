@@ -6,7 +6,7 @@ import Icon from '../components/icons/Icons';
 import toast from 'react-hot-toast';
 
 export default function Login() {
-  const { loginWithGoogle, loginAdmin, isLoggedIn, isAdmin } = useAuth();
+  const { loginWithGoogle, loginAdmin, loginTestUser, isLoggedIn, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [email, setEmail] = useState('');
@@ -156,6 +156,26 @@ export default function Login() {
                   <Icon name="Google" size={20} />
                 )}
                 <span>{loading ? 'Signing in...' : 'Continue with Google'}</span>
+              </button>
+
+              {/* Test User Login */}
+              <div className="relative flex items-center my-3">
+                <div className="flex-grow border-t border-gray-200" />
+                <span className="mx-3 text-xs text-gray-400 font-medium">or</span>
+                <div className="flex-grow border-t border-gray-200" />
+              </div>
+
+              <button
+                onClick={() => {
+                  const testUser = loginTestUser();
+                  toast.success(`Welcome, ${testUser.name}! (Test Account)`);
+                  navigate('/');
+                }}
+                className="w-full flex items-center justify-center gap-3 border-2 border-dashed border-gray-300 hover:border-primary-400 bg-gray-50 hover:bg-primary-50 text-gray-600 hover:text-primary-700 font-semibold py-3 px-6 rounded-xl transition-all duration-200 active:scale-95"
+              >
+                <Icon name="User" size={18} />
+                <span>Continue as Test User</span>
+                <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full uppercase tracking-wide">Demo</span>
               </button>
 
               <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">

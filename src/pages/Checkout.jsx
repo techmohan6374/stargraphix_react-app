@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Icon from '../components/icons/Icons';
 import toast from 'react-hot-toast';
+import { openRazorpay } from '../utils/razorpay';
 
 export default function Checkout() {
   const { cart, cartTotal, clearCart } = useCart();
@@ -19,7 +20,7 @@ export default function Checkout() {
     city: '',
     state: '',
     pincode: '',
-    paymentMethod: 'cod',
+    paymentMethod: 'razorpay',
     notes: '',
   });
   const [errors, setErrors] = useState({});
@@ -39,30 +40,62 @@ export default function Checkout() {
     return Object.keys(e).length === 0;
   };
 
-  const handlePlaceOrder = () => {
+  const saveOrder = (paymentInfo = {}) => {
+    const orderId = `SG${Date.now()}`;
+    const order = {
+      id: orderId,
+      items: [...cart],
+      subtotal: cartTotal,
+      gst,
+      total: grandTotal,
+      address: form,
+      status: 'Confirmed',
+      paymentMethod: form.paymentMethod,
+      paymentInfo,
+      placedAt: new Date().toISOString(),
+      userId: user?.id,
+    };
+    const orders = JSON.parse(localStorage.getItem('sg_orders') || '[]');
+    orders.unshift(order);
+    localStorage.setItem('sg_orders', JSON.stringify(orders));
+    clearCart();
+    toast.success('Order placed successfully!');
+    navigate('/orders', { state: { newOrder: orderId } });
+  };
+
+  const handlePlaceOrder = async () => {
     if (!validate()) return;
+
+    if (form.paymentMethod === 'razorpay') {
+      setLoading(true);
+      await openRazorpay({
+        amount: grandTotal,
+        name: 'Star Graphix',
+        description: `Order — ${cart.length} item(s)`,
+        customerName: form.name,
+        customerEmail: form.email,
+        customerPhone: form.phone,
+        onSuccess: (response) => {
+          setLoading(false);
+          saveOrder({
+            paymentId: response.razorpay_payment_id,
+            orderId: response.razorpay_order_id,
+            signature: response.razorpay_signature,
+          });
+        },
+        onDismiss: () => {
+          setLoading(false);
+          toast.error('Payment cancelled.');
+        },
+      });
+      setLoading(false);
+      return;
+    }
+
+    // COD / Bank Transfer
     setLoading(true);
     setTimeout(() => {
-      const orderId = `SG${Date.now()}`;
-      const order = {
-        id: orderId,
-        items: [...cart],
-        subtotal: cartTotal,
-        gst,
-        total: grandTotal,
-        address: form,
-        status: 'Confirmed',
-        paymentMethod: form.paymentMethod,
-        placedAt: new Date().toISOString(),
-        userId: user?.id,
-      };
-      // Save to localStorage
-      const orders = JSON.parse(localStorage.getItem('sg_orders') || '[]');
-      orders.unshift(order);
-      localStorage.setItem('sg_orders', JSON.stringify(orders));
-      clearCart();
-      toast.success('Order placed successfully!');
-      navigate('/orders', { state: { newOrder: orderId } });
+      saveOrder();
       setLoading(false);
     }, 1500);
   };
@@ -149,19 +182,28 @@ export default function Checkout() {
                 </h2>
                 <div className="space-y-3">
                   {[
+                    { value: 'razorpay', label: 'Pay Online', desc: 'UPI · Cards · Netbanking · Wallets (Razorpay)', icon: 'CreditCard', highlight: true },
                     { value: 'cod', label: 'Cash on Delivery', desc: 'Pay when we deliver', icon: 'Package' },
-                    { value: 'upi', label: 'UPI Payment', desc: 'Google Pay, PhonePe, Paytm', icon: 'Smartphone' },
-                    { value: 'bank', label: 'Bank Transfer', desc: 'NEFT/RTGS/IMPS', icon: 'CreditCard' },
+                    { value: 'bank', label: 'Bank Transfer', desc: 'NEFT / RTGS / IMPS', icon: 'CreditCard' },
                   ].map((method) => (
-                    <label key={method.value} className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${form.paymentMethod === method.value ? 'border-primary-600 bg-primary-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <label key={method.value} className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                      form.paymentMethod === method.value
+                        ? 'border-primary-600 bg-primary-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}>
                       <input type="radio" name="payment" value={method.value}
                         checked={form.paymentMethod === method.value}
                         onChange={e => setForm({...form, paymentMethod: e.target.value})}
                         className="accent-primary-600"
                       />
-                      <Icon name={method.icon} size={20} className="text-primary-600" />
-                      <div>
-                        <p className="font-semibold text-gray-800 text-sm">{method.label}</p>
+                      <Icon name={method.icon} size={20} className={method.highlight ? 'text-primary-600' : 'text-gray-500'} />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-gray-800 text-sm">{method.label}</p>
+                          {method.highlight && (
+                            <span className="text-[9px] font-bold bg-primary-600 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wide">Recommended</span>
+                          )}
+                        </div>
                         <p className="text-xs text-gray-500">{method.desc}</p>
                       </div>
                     </label>

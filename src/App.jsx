@@ -7,6 +7,7 @@ import { useAuth } from './context/AuthContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import DonateModal from './components/ui/DonateModal';
+import AiVoiceBot from './components/ui/AiVoiceBot';
 
 // Pages
 import Home from './pages/Home';
@@ -136,6 +137,8 @@ export default function App() {
           </PublicLayout>
         } />
       </Routes>
+      {/* Global AI Voice Bot widget */}
+      <AiVoiceBot />
     </>
   );
 }
