@@ -61,7 +61,7 @@ function PublicLayout({ children }) {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="flex-1 mt-[112px] md:mt-[120px]">
+      <div className="flex-1 mt-[90px] sm:mt-[108px] md:mt-[120px]">
         {children}
       </div>
       <Footer />

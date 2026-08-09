@@ -140,43 +140,43 @@ export default function Home() {
   return (
     <main className="font-outfit">
       {/* ===== HERO SECTION ===== */}
-      <section className={`relative bg-gradient-to-r ${slide.bg} overflow-hidden min-h-[520px] flex items-center transition-all duration-700`}>
+      <section className={`relative bg-gradient-to-br ${slide.bg} overflow-hidden min-h-[420px] sm:min-h-[500px] md:min-h-[540px] flex items-center transition-all duration-700`}>
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
         </div>
 
-        <div className="container-custom py-12 md:py-16 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="container-custom px-5 py-8 sm:py-12 md:py-16 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
             <div className="animate-fade-in">
-              <span className="inline-flex items-center gap-1.5 bg-white bg-opacity-20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 backdrop-blur-sm">
-                <Icon name="Zap" size={12} /> {slide.tag}
+              <span className="inline-flex items-center gap-1.5 bg-white bg-opacity-20 text-white text-[11px] font-semibold px-3 py-1 rounded-full mb-3 backdrop-blur-sm">
+                <Icon name="Zap" size={11} /> {slide.tag}
               </span>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-2 leading-tight">
                 {slide.title}
               </h1>
-              <p className="text-lg text-white text-opacity-90 font-semibold mb-2">{slide.subtitle}</p>
-              <p className="text-sm text-white text-opacity-75 mb-6 max-w-lg leading-relaxed">{slide.desc}</p>
+              <p className="text-sm sm:text-base text-white/90 font-semibold mb-1.5">{slide.subtitle}</p>
+              <p className="text-xs sm:text-sm text-white/70 mb-5 max-w-lg leading-relaxed hidden sm:block">{slide.desc}</p>
 
-              <div className="flex flex-wrap gap-3">
-                <Link to={slide.ctaLink} className="btn-gold text-sm py-2.5 px-6 hover:shadow-lg">
-                  <Icon name="ArrowRight" size={16} /> {slide.cta}
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                <Link to={slide.ctaLink} className="btn-gold text-xs sm:text-sm py-2 px-4 sm:px-6 hover:shadow-lg">
+                  <Icon name="ArrowRight" size={14} /> {slide.cta}
                 </Link>
-                <Link to="/contact" className="flex items-center gap-2 bg-white bg-opacity-15 hover:bg-opacity-25 text-white font-semibold py-2.5 px-6 rounded-lg text-sm transition-all duration-200 backdrop-blur-sm border border-white border-opacity-30">
+                <Link to="/contact" className="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg text-xs sm:text-sm transition-all duration-200 backdrop-blur-sm border border-white/30">
                   {slide.ctaSecondary}
                 </Link>
               </div>
 
               {/* Stats row */}
-              <div className="flex flex-wrap gap-4 mt-8">
+              <div className="flex flex-wrap gap-3 sm:gap-4 mt-5 sm:mt-8">
                 {[
                   { label: '5000+ Clients', icon: 'Users' },
                   { label: '24hr Delivery', icon: 'Zap' },
                   { label: '100% Quality', icon: 'Shield' },
                 ].map((stat) => (
-                  <div key={stat.label} className="flex items-center gap-1.5 text-white text-opacity-90 text-xs font-medium">
-                    <Icon name={stat.icon} size={14} className="text-gold-400" />
+                  <div key={stat.label} className="flex items-center gap-1.5 text-white/90 text-[11px] sm:text-xs font-medium">
+                    <Icon name={stat.icon} size={13} className="text-gold-400" />
                     {stat.label}
                   </div>
                 ))}
@@ -204,20 +204,20 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Prev / Next arrows */}
+        {/* Prev / Next arrows — visible only on sm+ to avoid content overlap on mobile */}
         <button
           onClick={() => goToSlide((currentSlide - 1 + heroSlides.length) % heroSlides.length)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all duration-200 border border-white/30"
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all duration-200 border border-white/30"
           aria-label="Previous slide"
         >
-          <Icon name="ChevronLeft" size={20} />
+          <Icon name="ChevronLeft" size={16} />
         </button>
         <button
           onClick={() => goToSlide((currentSlide + 1) % heroSlides.length)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all duration-200 border border-white/30"
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white transition-all duration-200 border border-white/30"
           aria-label="Next slide"
         >
-          <Icon name="ChevronRight" size={20} />
+          <Icon name="ChevronRight" size={16} />
         </button>
 
         {/* Slide indicators */}

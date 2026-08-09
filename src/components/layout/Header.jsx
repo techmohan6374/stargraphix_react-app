@@ -15,6 +15,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdown, setUserDropdown] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [mobileSearch, setMobileSearch] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef(null);
   const navRef = useRef(null);
@@ -62,30 +63,34 @@ export default function Header() {
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 bg-white transition-shadow duration-300 ${scrolled ? 'shadow-header' : 'border-b border-gray-100'}`}>
       {/* Top announcement bar */}
-      <div className="bg-primary-600 text-white text-center text-xs font-medium py-1.5 px-4">
-        <span>
-          Free consultation on all orders above ₹999 &nbsp;•&nbsp; Call us:&nbsp;
-          <a href="tel:+919894033883" className="underline underline-offset-2 hover:text-white/80 transition-colors">+91 98940 33883</a>
-          &nbsp;/&nbsp;
-          <a href="tel:+918056580402" className="underline underline-offset-2 hover:text-white/80 transition-colors">+91 80565 80402</a>
+      <div className="bg-primary-600 text-white text-center text-[11px] font-medium py-1.5 px-4 leading-snug">
+        <span className="flex flex-wrap items-center justify-center gap-x-1">
+          <span className="hidden sm:inline">Free consultation on all orders above ₹999 •</span>
+          <span className="sm:hidden">Free consultation above ₹999 •</span>
+          <span className="flex items-center gap-1">
+            Call:
+            <a href="tel:+919894033883" className="underline underline-offset-2 font-bold whitespace-nowrap">98940 33883</a>
+            <span>/</span>
+            <a href="tel:+918056580402" className="underline underline-offset-2 font-bold whitespace-nowrap">80565 80402</a>
+          </span>
         </span>
       </div>
 
       {/* Main header */}
       <div className="container-custom py-3">
         <div className="flex items-center gap-4">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-            <img src="/logo.png" alt="Star Graphix" className="h-9 w-9 object-contain" />
-            <div className="hidden sm:flex flex-col leading-none">
-              <span className="text-base font-black text-primary-600 tracking-tight leading-none">Star Graphix</span>
-              <span className="text-[10px] font-semibold text-gray-400 tracking-widest leading-none mt-0.5">DIGITAL SOLUTIONS</span>
+          {/* Logo - always visible */}
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <img src="/logo.png" alt="Star Graphix" className="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
+            <div className="flex flex-col leading-none">
+              <span className="text-sm sm:text-base font-black text-primary-600 tracking-tight leading-none">Star Graphix</span>
+              <span className="text-[9px] sm:text-[10px] font-semibold text-gray-400 tracking-widest leading-none mt-0.5">DIGITAL SOLUTIONS</span>
             </div>
           </Link>
 
-          {/* Search bar */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-2xl mx-2 sm:mx-4">
-            <div className="relative flex">
+          {/* Search bar — desktop only */}
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl mx-4">
+            <div className="relative flex w-full">
               <input
                 type="text"
                 value={searchQuery}
@@ -103,9 +108,17 @@ export default function Header() {
           </form>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            {/* Wishlist */}
-            <Link to={user ? '/wishlist' : '/login'} className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-50">
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {/* Mobile search toggle */}
+            <button
+              onClick={() => setMobileSearch(!mobileSearch)}
+              className="md:hidden p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-50"
+            >
+              <Icon name="Search" size={20} />
+            </button>
+
+            {/* Wishlist — hidden on mobile */}
+            <Link to={user ? '/wishlist' : '/login'} className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-50 hidden sm:flex">
               <Icon name="Heart" size={22} />
               {wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
@@ -185,6 +198,25 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Mobile search bar — expands below header on tap */}
+      {mobileSearch && (
+        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-2 animate-slide-down">
+          <form onSubmit={(e) => { handleSearch(e); setMobileSearch(false); }} className="flex gap-2">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+              placeholder="Search flyers, cards, web apps..."
+              className="flex-1 border-2 border-gray-200 focus:border-primary-600 rounded-lg px-3 py-2 text-sm outline-none font-outfit"
+            />
+            <button type="submit" className="bg-primary-600 hover:bg-primary-700 text-white px-4 rounded-lg flex items-center transition-colors">
+              <Icon name="Search" size={16} />
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* Navigation bar */}
       <nav className="hidden md:block border-t border-gray-100 bg-white">
