@@ -15,6 +15,37 @@ const statusColors = {
   Rejected: 'bg-red-100 text-red-700',
 };
 
+const getStepStatus = (status, index) => {
+  if (index === 0) {
+    if (status === 'Rejected') return { label: 'Payment Rejected', color: 'bg-red-50 text-red-600 border border-red-200', icon: 'XCircle' };
+    if (status === 'Pending Verification') return { label: 'Awaiting Verification', color: 'bg-amber-50 text-amber-600 border border-amber-200', icon: 'Clock' };
+    return { label: 'Payment Verified', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
+  }
+  if (index === 1) {
+    if (status === 'Rejected' || status === 'Pending Verification') return { label: 'Awaiting Verification', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
+    if (status === 'Placed') return { label: 'Awaiting Confirmation', color: 'bg-amber-50 text-amber-600 border border-amber-200', icon: 'Clock' };
+    return { label: 'Order Confirmed', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
+  }
+  if (index === 2) {
+    if (['Rejected', 'Pending Verification', 'Placed'].includes(status)) return { label: 'In Progress', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
+    if (['Confirmed', 'Processing', 'In Progress'].includes(status)) return { label: 'Processing & Designing', color: 'bg-blue-50 text-blue-600 border border-blue-200', icon: 'Zap' };
+    return { label: 'Processing Completed', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
+  }
+  if (index === 3) {
+    if (status === 'Completed') return { label: 'Completed & Delivered', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
+    if (status === 'Cancelled') return { label: 'Cancelled', color: 'bg-red-50 text-red-600 border border-red-200', icon: 'XCircle' };
+    return { label: 'Completed', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
+  }
+  return { label: '', color: 'bg-gray-50 text-gray-400 border-gray-100', icon: 'Circle' };
+};
+
+const isLineActive = (status, index) => {
+  if (index === 0) return !['Pending Verification', 'Rejected'].includes(status);
+  if (index === 1) return !['Pending Verification', 'Rejected', 'Placed'].includes(status);
+  if (index === 2) return status === 'Completed';
+  return false;
+};
+
 export default function Orders() {
   const { user } = useAuth();
   const location = useLocation();
@@ -170,20 +201,22 @@ export default function Orders() {
                   </div>
 
                   {/* Progress tracker */}
-                  <div className="mt-4">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Order Progress</p>
+                  <div className="mt-4 border-t border-gray-50 pt-4">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Order Progress & Tracking</p>
                     <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2">
-                      {['Confirmed', 'Processing', 'In Progress', 'Completed'].map((s, i, arr) => (
-                        <div key={s} className="flex items-center gap-2 flex-shrink-0">
-                          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
-                            ['Confirmed', 'Processing', 'In Progress', 'Completed'].indexOf(order.status) >= i
-                              ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-400'
-                          }`}>
-                            <Icon name="CheckCircle" size={12} /> {s}
+                      {['Payment Verification', 'Order Confirmation', 'In Progress', 'Completed'].map((s, i, arr) => {
+                        const step = getStepStatus(order.status, i);
+                        return (
+                          <div key={s} className="flex items-center gap-2 flex-shrink-0">
+                            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${step.color}`}>
+                              <Icon name={step.icon} size={12} /> {step.label}
+                            </div>
+                            {i < arr.length - 1 && (
+                              <div className={`w-8 h-0.5 ${isLineActive(order.status, i) ? 'bg-green-500' : 'bg-gray-200'}`} />
+                            )}
                           </div>
-                          {i < arr.length - 1 && <div className={`w-6 h-0.5 ${['Confirmed', 'Processing', 'In Progress', 'Completed'].indexOf(order.status) > i ? 'bg-primary-600' : 'bg-gray-200'}`} />}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

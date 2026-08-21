@@ -4,7 +4,6 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Icon from '../components/icons/Icons';
 import toast from 'react-hot-toast';
-import { openRazorpay } from '../utils/razorpay';
 import { API_BASE } from '../utils/api';
 
 export default function Checkout() {
@@ -21,7 +20,7 @@ export default function Checkout() {
     city: '',
     state: '',
     pincode: '',
-    paymentMethod: 'razorpay',
+    paymentMethod: 'upi',
     notes: '',
   });
   const [errors, setErrors] = useState({});
