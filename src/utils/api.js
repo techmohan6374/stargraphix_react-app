@@ -1,4 +1,4 @@
-export const API_BASE = 'https://mrmoney-api.onrender.com';
+export const API_BASE = 'https://mrmoney-api.onrender.com/api';
 
 export async function apiFetch(path, options = {}) {
   const storedUser = localStorage.getItem('sg_user');
