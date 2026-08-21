@@ -8,7 +8,6 @@ const adminNav = [
   { name: 'Products', path: '/admin/products', icon: 'Package' },
   { name: 'Orders', path: '/admin/orders', icon: 'ShoppingBag' },
   { name: 'Users', path: '/admin/users', icon: 'Users' },
-  { name: 'Inquiries', path: '/admin/inquiries', icon: 'Mail' },
   { name: 'SMTP Config', path: '/admin/smtp', icon: 'Settings' },
 ];
 
@@ -71,9 +70,6 @@ export default function AdminSidebar({ mobile = false, onClose }) {
         </div>
 
         <div className="mt-4 pt-4 border-t border-gray-800">
-          <Link to="/" onClick={onClose} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-900 hover:text-white transition-all">
-            <Icon name="Home" size={16} /> View Store
-          </Link>
           <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-red-900 hover:text-red-400 transition-all">
             <Icon name="LogOut" size={16} /> Sign Out
           </button>
