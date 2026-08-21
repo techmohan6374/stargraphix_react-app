@@ -98,9 +98,12 @@ export default function AdminOrders() {
       o.id?.toLowerCase().includes(search.toLowerCase()) ||
       customerName.toLowerCase().includes(search.toLowerCase()) ||
       customerEmail.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = statusFilter === 'All' || o.status === statusFilter;
     return matchSearch && matchStatus;
   });
   const paginatedOrders = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
 
   return (
     <div className="flex min-h-screen bg-gray-100 font-outfit">
