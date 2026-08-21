@@ -9,6 +9,7 @@ const adminNav = [
   { name: 'Orders', path: '/admin/orders', icon: 'ShoppingBag' },
   { name: 'Users', path: '/admin/users', icon: 'Users' },
   { name: 'Inquiries', path: '/admin/inquiries', icon: 'Mail' },
+  { name: 'SMTP Config', path: '/admin/smtp', icon: 'Settings' },
 ];
 
 export default function AdminSidebar({ mobile = false, onClose }) {

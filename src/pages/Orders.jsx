@@ -22,13 +22,12 @@ const getStepStatus = (status, index) => {
     return { label: 'Payment Verified', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
   }
   if (index === 1) {
-    if (status === 'Rejected' || status === 'Pending Verification') return { label: 'Awaiting Verification', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
-    if (status === 'Placed') return { label: 'Awaiting Confirmation', color: 'bg-amber-50 text-amber-600 border border-amber-200', icon: 'Clock' };
+    if (status === 'Rejected' || status === 'Pending Verification') return { label: 'Awaiting Confirmation', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
     return { label: 'Order Confirmed', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
   }
   if (index === 2) {
-    if (['Rejected', 'Pending Verification', 'Placed'].includes(status)) return { label: 'In Progress', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
-    if (['Confirmed', 'Processing', 'In Progress'].includes(status)) return { label: 'Processing & Designing', color: 'bg-blue-50 text-blue-600 border border-blue-200', icon: 'Zap' };
+    if (['Rejected', 'Pending Verification'].includes(status)) return { label: 'In Progress', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
+    if (['Placed', 'Confirmed', 'Processing', 'In Progress'].includes(status)) return { label: 'Processing & Designing', color: 'bg-blue-50 text-blue-600 border border-blue-200', icon: 'Zap' };
     return { label: 'Processing Completed', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
   }
   if (index === 3) {
@@ -41,7 +40,7 @@ const getStepStatus = (status, index) => {
 
 const isLineActive = (status, index) => {
   if (index === 0) return !['Pending Verification', 'Rejected'].includes(status);
-  if (index === 1) return !['Pending Verification', 'Rejected', 'Placed'].includes(status);
+  if (index === 1) return !['Pending Verification', 'Rejected'].includes(status);
   if (index === 2) return status === 'Completed';
   return false;
 };
