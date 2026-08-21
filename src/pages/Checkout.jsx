@@ -40,64 +40,94 @@ export default function Checkout() {
     return Object.keys(e).length === 0;
   };
 
-  const saveOrder = (paymentInfo = {}) => {
-    const orderId = `SG${Date.now()}`;
-    const order = {
-      id: orderId,
-      items: [...cart],
-      subtotal: cartTotal,
-      gst,
-      total: grandTotal,
-      address: form,
-      status: 'Confirmed',
-      paymentMethod: form.paymentMethod,
-      paymentInfo,
-      placedAt: new Date().toISOString(),
-      userId: user?.id,
-    };
-    const orders = JSON.parse(localStorage.getItem('sg_orders') || '[]');
-    orders.unshift(order);
-    localStorage.setItem('sg_orders', JSON.stringify(orders));
-    clearCart();
-    toast.success('Order placed successfully!');
-    navigate('/orders', { state: { newOrder: orderId } });
+  const [screenshotUploading, setScreenshotUploading] = useState(false);
+  const [screenshotUrl, setScreenshotUrl] = useState('');
+
+  const handleScreenshotUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setScreenshotUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('http://localhost:5149/api/orders/upload-screenshot', {
+        method: 'POST',
+        body: formData
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      setScreenshotUrl(data.imageUrl);
+      toast.success('Screenshot uploaded successfully!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to upload screenshot.');
+    } finally {
+      setScreenshotUploading(false);
+    }
   };
 
   const handlePlaceOrder = async () => {
     if (!validate()) return;
-
-    if (form.paymentMethod === 'razorpay') {
-      setLoading(true);
-      await openRazorpay({
-        amount: grandTotal,
-        name: 'Star Graphix',
-        description: `Order — ${cart.length} item(s)`,
-        customerName: form.name,
-        customerEmail: form.email,
-        customerPhone: form.phone,
-        onSuccess: (response) => {
-          setLoading(false);
-          saveOrder({
-            paymentId: response.razorpay_payment_id,
-            orderId: response.razorpay_order_id,
-            signature: response.razorpay_signature,
-          });
-        },
-        onDismiss: () => {
-          setLoading(false);
-          toast.error('Payment cancelled.');
-        },
-      });
-      setLoading(false);
+    if (!screenshotUrl) {
+      toast.error('Please upload your payment screenshot to place the order.');
       return;
     }
 
-    // COD / Bank Transfer
     setLoading(true);
-    setTimeout(() => {
-      saveOrder();
+    const orderData = {
+      userId: user?.id,
+      items: cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        qty: item.qty,
+        image: item.image
+      })),
+      subtotal: cartTotal,
+      gst,
+      total: grandTotal,
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      address: form.address,
+      city: form.city,
+      state: form.state,
+      pincode: form.pincode,
+      notes: form.notes,
+      status: 'Pending Verification',
+      paymentMethod: 'upi',
+      paymentScreenshotUrl: screenshotUrl
+    };
+
+    try {
+      const res = await fetch('http://localhost:5149/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+      if (!res.ok) throw new Error('Failed to create order');
+      const data = await res.json();
+      clearCart();
+      toast.success('Order placed! Awaiting admin approval.');
+      navigate('/orders', { state: { newOrder: data.id } });
+    } catch (err) {
+      console.warn("Backend not running, saving order to local storage fallback:", err);
+      
+      const localOrder = {
+        ...orderData,
+        id: `SGLocal_${Date.now()}`,
+        placedAt: new Date().toISOString()
+      };
+      const orders = JSON.parse(localStorage.getItem('sg_orders') || '[]');
+      orders.unshift(localOrder);
+      localStorage.setItem('sg_orders', JSON.stringify(orders));
+      
+      clearCart();
+      toast.success('Order placed (Local Fallback)! Awaiting verification.');
+      navigate('/orders', { state: { newOrder: localOrder.id } });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const inputClass = (field) =>
@@ -178,42 +208,75 @@ export default function Checkout() {
             {step === 2 && (
               <div className="bg-white rounded-xl border border-gray-100 p-6">
                 <h2 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  <Icon name="CreditCard" size={18} className="text-primary-600" /> Payment Method
+                  <Icon name="CreditCard" size={18} className="text-primary-600" /> UPI QR Code Payment
                 </h2>
-                <div className="space-y-3">
-                  {[
-                    { value: 'razorpay', label: 'Pay Online', desc: 'UPI · Cards · Netbanking · Wallets (Razorpay)', icon: 'CreditCard', highlight: true },
-                    { value: 'cod', label: 'Cash on Delivery', desc: 'Pay when we deliver', icon: 'Package' },
-                    { value: 'bank', label: 'Bank Transfer', desc: 'NEFT / RTGS / IMPS', icon: 'CreditCard' },
-                  ].map((method) => (
-                    <label key={method.value} className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                      form.paymentMethod === method.value
-                        ? 'border-primary-600 bg-primary-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}>
-                      <input type="radio" name="payment" value={method.value}
-                        checked={form.paymentMethod === method.value}
-                        onChange={e => setForm({...form, paymentMethod: e.target.value})}
-                        className="accent-primary-600"
-                      />
-                      <Icon name={method.icon} size={20} className={method.highlight ? 'text-primary-600' : 'text-gray-500'} />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-gray-800 text-sm">{method.label}</p>
-                          {method.highlight && (
-                            <span className="text-[9px] font-bold bg-primary-600 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wide">Recommended</span>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500">{method.desc}</p>
-                      </div>
-                    </label>
-                  ))}
+                
+                <div className="flex flex-col items-center justify-center p-4 border border-dashed border-gray-200 rounded-xl bg-gray-50 mb-5">
+                  <p className="text-sm font-semibold text-gray-700 mb-3 text-center">
+                    Scan using GPay, PhonePe, Paytm, or BHIM
+                  </p>
+                  
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`upi://pay?pa=stargraphix2010@okaxis&pn=StarGraphix&am=${grandTotal}&cu=INR`)}`} 
+                    alt="UPI Payment QR Code" 
+                    className="w-48 h-48 object-contain rounded-lg border-4 border-white shadow-md bg-white p-2 mb-4"
+                  />
+                  
+                  <div className="text-center">
+                    <p className="text-xs text-gray-400">Merchant Name</p>
+                    <p className="text-sm font-bold text-gray-800">STAR GRAPHIX</p>
+                    <p className="text-xs text-gray-400 mt-2">Amount to Pay</p>
+                    <p className="text-lg font-black text-primary-600">₹{grandTotal.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] text-gray-400 mt-1 select-all font-mono">UPI ID: stargraphix2010@okaxis</p>
+                  </div>
                 </div>
-                <div className="flex gap-3 mt-5">
+
+                <div className="space-y-4">
+                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
+                    <Icon name="Info" size={18} className="text-amber-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-700 leading-relaxed">
+                      Please make the payment of <strong>₹{grandTotal.toLocaleString('en-IN')}</strong> to the above UPI address or QR, then upload the receipt/screenshot below. The admin will verify and approve your order.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Upload Payment Screenshot *</label>
+                    <div className="flex items-center gap-3">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleScreenshotUpload} 
+                        className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer" 
+                      />
+                      {screenshotUploading && (
+                        <div className="flex items-center gap-1">
+                          <svg className="animate-spin w-4 h-4 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                          <span className="text-xs text-gray-400">Uploading...</span>
+                        </div>
+                      )}
+                    </div>
+                    {screenshotUrl && (
+                      <div className="mt-3 flex items-center gap-2 text-green-600 text-xs font-semibold">
+                        <Icon name="CheckCircle" size={16} /> Screenshot uploaded successfully!
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
                   <button onClick={() => setStep(1)} className="btn-secondary py-2.5 px-5 text-sm">
                     <Icon name="ChevronLeft" size={16} /> Back
                   </button>
-                  <button onClick={() => setStep(3)} className="btn-primary py-2.5 px-6 text-sm">
+                  <button 
+                    onClick={() => {
+                      if (!screenshotUrl) {
+                        toast.error('Please upload your payment screenshot before reviewing the order.');
+                        return;
+                      }
+                      setStep(3);
+                    }} 
+                    className="btn-primary py-2.5 px-6 text-sm"
+                  >
                     Review Order <Icon name="ChevronRight" size={16} />
                   </button>
                 </div>

@@ -9,6 +9,9 @@ const statusColors = {
   'In Progress': 'bg-orange-100 text-orange-700',
   Completed: 'bg-green-100 text-green-700',
   Cancelled: 'bg-red-100 text-red-700',
+  'Pending Verification': 'bg-amber-100 text-amber-700',
+  Placed: 'bg-green-100 text-green-700',
+  Rejected: 'bg-red-100 text-red-700',
 };
 
 export default function Orders() {
@@ -16,14 +19,56 @@ export default function Orders() {
   const location = useLocation();
   const [orders, setOrders] = useState([]);
   const [expandedOrder, setExpandedOrder] = useState(location.state?.newOrder || null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const allOrders = JSON.parse(localStorage.getItem('sg_orders') || '[]');
-    const userOrders = user?.role === 'admin'
-      ? allOrders
-      : allOrders.filter(o => o.userId === user?.id);
-    setOrders(userOrders);
+    if (!user) return;
+    setLoading(true);
+    const storedUser = localStorage.getItem('sg_user');
+    let token = null;
+    if (storedUser) {
+      try { token = JSON.parse(storedUser).token; } catch {}
+    }
+
+    const url = user.role === 'admin' 
+      ? 'http://localhost:5149/api/orders'
+      : `http://localhost:5149/api/orders?userId=${user.id}`;
+
+    fetch(url, {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('API failed');
+        return res.json();
+      })
+      .then(data => {
+        setOrders(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.warn("Backend not running, falling back to local orders:", err);
+        const allOrders = JSON.parse(localStorage.getItem('sg_orders') || '[]');
+        const userOrders = user.role === 'admin'
+          ? allOrders
+          : allOrders.filter(o => o.userId === user?.id);
+        setOrders(userOrders);
+        setLoading(false);
+      });
   }, [user]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center font-outfit">
+        <div className="flex flex-col items-center gap-3">
+          <svg className="animate-spin w-8 h-8 text-primary-600" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <p className="text-gray-400 text-sm font-semibold">Loading orders...</p>
+        </div>
+      </main>
+    );
+  }
 
   if (orders.length === 0) {
     return (
@@ -102,11 +147,24 @@ export default function Orders() {
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 mb-0.5">Delivery Address</p>
-                      <p className="font-semibold text-gray-700">{order.address?.city}, {order.address?.state}</p>
+                      <p className="font-semibold text-gray-700">
+                        {order.city || order.address?.city}, {order.state || order.address?.state}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-0.5">Items Count</p>
-                      <p className="font-semibold text-gray-700">{order.items?.length} item{order.items?.length !== 1 ? 's' : ''}</p>
+                      <p className="text-xs text-gray-500 mb-0.5">Receipt Screenshot</p>
+                      {order.paymentScreenshotUrl ? (
+                        <a 
+                          href={order.paymentScreenshotUrl} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="text-primary-600 hover:text-primary-700 font-semibold hover:underline flex items-center gap-1"
+                        >
+                          <Icon name="Image" size={14} /> View Receipt
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">None</span>
+                      )}
                     </div>
                   </div>
 

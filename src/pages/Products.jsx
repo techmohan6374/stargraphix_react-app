@@ -26,19 +26,54 @@ export default function Products() {
   const [selectedPriceRange, setSelectedPriceRange] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [view, setView] = useState('grid');
+  
+  const [productsList, setProductsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:5149/api/products')
+      .then(res => {
+        if (!res.ok) throw new Error('API failed');
+        return res.json();
+      })
+      .then(data => {
+        setProductsList(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.warn("Backend not running, falling back to static products:", err);
+        const stored = localStorage.getItem('sg_products');
+        setProductsList(stored ? JSON.parse(stored) : products);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center bg-gray-50 font-outfit">
+        <div className="flex flex-col items-center gap-3">
+          <svg className="animate-spin w-8 h-8 text-primary-600" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <p className="text-gray-400 text-sm font-semibold">Loading services...</p>
+        </div>
+      </div>
+    );
+  }
 
   const query = searchParams.get('q') || '';
   const categoryFilter = searchParams.get('category') || '';
 
   // Filter products
-  let filtered = [...products];
+  let filtered = [...productsList];
   if (query) {
     const q = query.toLowerCase();
     filtered = filtered.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.tags.some(t => t.includes(q)) ||
-      p.subcategory.includes(q) ||
-      p.category.includes(q)
+      (p.name || '').toLowerCase().includes(q) ||
+      (p.tags || []).some(t => t.toLowerCase().includes(q)) ||
+      (p.subcategory || '').includes(q) ||
+      (p.category || '').includes(q)
     );
   }
   if (categoryFilter) {
@@ -58,7 +93,7 @@ export default function Products() {
     }
   });
 
-  const allSubcats = [...new Set(products.map(p => p.subcategory))];
+  const allSubcats = [...new Set(productsList.map(p => p.subcategory))];
   const activeCategoryName = categoryFilter
     ? categories.flatMap(c => c.subcategories).find(s => s.slug === categoryFilter)?.name || categoryFilter
     : '';

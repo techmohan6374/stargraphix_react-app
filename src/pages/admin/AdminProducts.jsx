@@ -15,19 +15,51 @@ export default function AdminProducts() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [mobileNav, setMobileNav] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('sg_products');
-    setProducts(stored ? JSON.parse(stored) : defaultProducts);
-  }, []);
+  const [uploading, setUploading] = useState(false);
 
-  const save = (updated) => {
-    setProducts(updated);
-    localStorage.setItem('sg_products', JSON.stringify(updated));
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch('http://localhost:5149/api/products');
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      console.warn("Backend not running, falling back to static products:", err);
+      const stored = localStorage.getItem('sg_products');
+      setProducts(stored ? JSON.parse(stored) : defaultProducts);
+    }
   };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('http://localhost:5149/api/products/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      setForm({ ...form, image: data.imageUrl });
+      toast.success('Image uploaded to Cloudinary!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Image upload failed.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.price) { toast.error('Name and price are required'); return; }
+    
     const product = {
       ...form,
       id: editId || `p${Date.now()}`,
@@ -37,18 +69,41 @@ export default function AdminProducts() {
       rating: 4.5, reviewCount: 0, tags: [], slug: form.name.toLowerCase().replace(/\s+/g, '-'),
       images: form.image ? [form.image] : [],
     };
-    let updated;
-    if (editId) {
-      updated = products.map(p => p.id === editId ? product : p);
-      toast.success('Product updated!');
-    } else {
-      updated = [product, ...products];
-      toast.success('Product added!');
+
+    try {
+      const url = editId 
+        ? `http://localhost:5149/api/products/${editId}` 
+        : 'http://localhost:5149/api/products';
+      const method = editId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product)
+      });
+      if (!res.ok) throw new Error('API failed');
+
+      toast.success(editId ? 'Product updated!' : 'Product added!');
+      fetchProducts();
+      setShowForm(false);
+      setEditId(null);
+      setForm(emptyForm);
+    } catch (err) {
+      console.error(err);
+      let updated;
+      if (editId) {
+        updated = products.map(p => p.id === editId ? product : p);
+        toast.success('Product updated (Local Fallback)!');
+      } else {
+        updated = [product, ...products];
+        toast.success('Product added (Local Fallback)!');
+      }
+      setProducts(updated);
+      localStorage.setItem('sg_products', JSON.stringify(updated));
+      setShowForm(false);
+      setEditId(null);
+      setForm(emptyForm);
     }
-    save(updated);
-    setShowForm(false);
-    setEditId(null);
-    setForm(emptyForm);
   };
 
   const handleEdit = (product) => {
@@ -62,16 +117,42 @@ export default function AdminProducts() {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
-    const updated = products.filter(p => p.id !== id);
-    save(updated);
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5149/api/products/${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      toast.success('Product deleted');
+      fetchProducts();
+    } catch (err) {
+      console.error(err);
+      const updated = products.filter(p => p.id !== id);
+      setProducts(updated);
+      localStorage.setItem('sg_products', JSON.stringify(updated));
+      toast.success('Product deleted (Local Fallback)');
+    }
     setDeleteConfirm(null);
-    toast.success('Product deleted');
   };
 
-  const toggleStock = (id) => {
-    const updated = products.map(p => p.id === id ? { ...p, inStock: !p.inStock } : p);
-    save(updated);
+  const toggleStock = async (id) => {
+    const item = products.find(p => p.id === id);
+    if (!item) return;
+    const updatedItem = { ...item, inStock: !item.inStock };
+    try {
+      const res = await fetch(`http://localhost:5149/api/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedItem)
+      });
+      if (!res.ok) throw new Error('Update failed');
+      fetchProducts();
+    } catch (err) {
+      console.error(err);
+      const updated = products.map(p => p.id === id ? updatedItem : p);
+      setProducts(updated);
+      localStorage.setItem('sg_products', JSON.stringify(updated));
+    }
   };
 
   const filtered = products.filter(p =>
@@ -164,8 +245,14 @@ export default function AdminProducts() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-1 block">Image URL</label>
-                  <input value={form.image} onChange={e => setForm({...form, image: e.target.value})} placeholder="https://..." className="input-field" />
+                  <label className="text-sm font-semibold text-gray-700 mb-1 block">Product Image</label>
+                  <div className="flex items-center gap-3">
+                    {form.image && (
+                      <img src={form.image} alt="Preview" className="w-12 h-12 object-cover rounded-lg border border-gray-200" />
+                    )}
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer" />
+                    {uploading && <span className="text-xs text-gray-400">Uploading...</span>}
+                  </div>
                 </div>
                 <div className="sm:col-span-2">
                   <label className="text-sm font-semibold text-gray-700 mb-1 block">Features (comma separated)</label>

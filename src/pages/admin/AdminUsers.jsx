@@ -8,15 +8,42 @@ export default function AdminUsers() {
   const [search, setSearch] = useState('');
   const [mobileNav, setMobileNav] = useState(false);
 
+  const fetchUsers = async () => {
+    try {
+      const storedUser = localStorage.getItem('sg_user');
+      let token = null;
+      if (storedUser) {
+        token = JSON.parse(storedUser).token;
+      }
+      const res = await fetch('http://localhost:5149/api/users', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (!res.ok) throw new Error('Failed to fetch users');
+      const data = await res.json();
+      const mapped = data.map(u => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        provider: u.provider,
+        joinedAt: u.joinedAt || u.joinedDate || new Date().toISOString(),
+        photo: u.picture || u.photo || null
+      }));
+      setUsers(mapped);
+    } catch (err) {
+      console.warn("Backend not running, falling back to local users:", err);
+      const stored = JSON.parse(localStorage.getItem('sg_users') || '[]');
+      const adminUser = {
+        id: 'admin_001', name: 'Admin', email: 'admin@stargraphix.com',
+        role: 'admin', provider: 'static', joinedAt: new Date().toISOString(), photo: null,
+      };
+      const hasAdmin = stored.find(u => u.role === 'admin');
+      setUsers(hasAdmin ? stored : [adminUser, ...stored]);
+    }
+  };
+
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('sg_users') || '[]');
-    // Add admin as first user if not already present
-    const adminUser = {
-      id: 'admin_001', name: 'Admin', email: 'admin@stargraphix.com',
-      role: 'admin', provider: 'static', joinedAt: new Date().toISOString(), photo: null,
-    };
-    const hasAdmin = stored.find(u => u.role === 'admin');
-    setUsers(hasAdmin ? stored : [adminUser, ...stored]);
+    fetchUsers();
   }, []);
 
   const filtered = users.filter(u =>
@@ -30,11 +57,27 @@ export default function AdminUsers() {
     return orders.filter(o => o.userId === userId);
   };
 
-  const handleDeleteUser = (userId) => {
-    const updated = users.filter(u => u.id !== userId);
-    setUsers(updated);
-    localStorage.setItem('sg_users', JSON.stringify(updated));
-    toast.success('User removed');
+  const handleDeleteUser = async (userId) => {
+    try {
+      const storedUser = localStorage.getItem('sg_user');
+      let token = null;
+      if (storedUser) {
+        token = JSON.parse(storedUser).token;
+      }
+      const res = await fetch(`http://localhost:5149/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      toast.success('User removed');
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+      const updated = users.filter(u => u.id !== userId);
+      setUsers(updated);
+      localStorage.setItem('sg_users', JSON.stringify(updated));
+      toast.success('User removed (Local Fallback)');
+    }
   };
 
   return (

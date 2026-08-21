@@ -8,9 +8,7 @@ import { WishlistProvider } from './context/WishlistContext'
 import './index.css'
 import App from './App.jsx'
 
-// Replace with your actual Google OAuth Client ID
-// Get it from: https://console.cloud.google.com/
-const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
+const GOOGLE_CLIENT_ID = '411393513465-tjij85b0qpnmjijvdh1d28jrdk5p09rb.apps.googleusercontent.com'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

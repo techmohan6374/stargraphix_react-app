@@ -5,10 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import Icon from '../components/icons/Icons';
 import toast from 'react-hot-toast';
 
-export default function Login() {
-  const { loginWithGoogle, loginAdmin, loginTestUser, isLoggedIn, isAdmin } = useAuth();
+export default function Login({ mode = 'user' }) {
+  const { loginWithGoogle, loginAdmin, isLoggedIn, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [isAdminMode, setIsAdminMode] = useState(false);
+  const isAdminMode = mode === 'admin';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -29,21 +29,19 @@ export default function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleAdminLogin = (e) => {
+  const handleAdminLogin = async (e) => {
     e.preventDefault();
     if (!validateAdmin()) return;
     setLoading(true);
-    setTimeout(() => {
-      const result = loginAdmin(email, password);
-      if (result.success) {
-        toast.success('Welcome back, Admin!');
-        navigate('/admin');
-      } else {
-        toast.error('Invalid admin credentials');
-        setErrors({ general: 'Invalid email or password' });
-      }
-      setLoading(false);
-    }, 800);
+    const result = await loginAdmin(email, password);
+    if (result.success) {
+      toast.success('Welcome back, Admin!');
+      navigate('/admin');
+    } else {
+      toast.error('Invalid admin credentials');
+      setErrors({ general: 'Invalid email or password' });
+    }
+    setLoading(false);
   };
 
   const googleLogin = useGoogleLogin({
@@ -54,11 +52,12 @@ export default function Login() {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
         const userInfo = await res.json();
-        loginWithGoogle(userInfo);
+        await loginWithGoogle(userInfo);
         toast.success(`Welcome, ${userInfo.name}!`);
         navigate('/');
-      } catch {
+      } catch (err) {
         toast.error('Google sign-in failed. Please try again.');
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -123,22 +122,6 @@ export default function Login() {
             {isAdminMode ? 'Sign in to access the admin panel' : 'Sign in to your Star Graphix account'}
           </p>
 
-          {/* Toggle */}
-          <div className="flex rounded-xl bg-gray-100 p-1 mb-6">
-            <button
-              onClick={() => { setIsAdminMode(false); setErrors({}); }}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${!isAdminMode ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}
-            >
-              <Icon name="User" size={15} /> User Login
-            </button>
-            <button
-              onClick={() => { setIsAdminMode(true); setErrors({}); }}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${isAdminMode ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}
-            >
-              <Icon name="Shield" size={15} /> Admin Login
-            </button>
-          </div>
-
           {!isAdminMode ? (
             /* Google Login */
             <div>
@@ -156,26 +139,6 @@ export default function Login() {
                   <Icon name="Google" size={20} />
                 )}
                 <span>{loading ? 'Signing in...' : 'Continue with Google'}</span>
-              </button>
-
-              {/* Test User Login */}
-              <div className="relative flex items-center my-3">
-                <div className="flex-grow border-t border-gray-200" />
-                <span className="mx-3 text-xs text-gray-400 font-medium">or</span>
-                <div className="flex-grow border-t border-gray-200" />
-              </div>
-
-              <button
-                onClick={() => {
-                  const testUser = loginTestUser();
-                  toast.success(`Welcome, ${testUser.name}! (Test Account)`);
-                  navigate('/');
-                }}
-                className="w-full flex items-center justify-center gap-3 border-2 border-dashed border-gray-300 hover:border-primary-400 bg-gray-50 hover:bg-primary-50 text-gray-600 hover:text-primary-700 font-semibold py-3 px-6 rounded-xl transition-all duration-200 active:scale-95"
-              >
-                <Icon name="User" size={18} />
-                <span>Continue as Test User</span>
-                <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full uppercase tracking-wide">Demo</span>
               </button>
 
               <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
@@ -213,7 +176,7 @@ export default function Login() {
                     type="email"
                     value={email}
                     onChange={(e) => { setEmail(e.target.value); setErrors({ ...errors, email: '' }); }}
-                    placeholder="admin@stargraphix.com"
+                    placeholder="stargraphix2010@gmail.com"
                     className={`input-field pl-9 ${errors.email ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : ''}`}
                   />
                 </div>
@@ -236,12 +199,6 @@ export default function Login() {
                   </button>
                 </div>
                 {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-              </div>
-
-              <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                <p className="text-xs text-amber-700 font-medium">Demo credentials:</p>
-                <p className="text-xs text-amber-600">Email: admin@stargraphix.com</p>
-                <p className="text-xs text-amber-600">Password: Admin@123</p>
               </div>
 
               <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 disabled:opacity-70 disabled:cursor-not-allowed">

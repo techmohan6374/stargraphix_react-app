@@ -1,10 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE } from '../utils/api';
 
 const AuthContext = createContext(null);
-
-// Static admin credentials
-const ADMIN_EMAIL = 'admin@stargraphix.com';
-const ADMIN_PASSWORD = 'Admin@123';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -18,60 +15,75 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const loginWithGoogle = (googleUser) => {
-    const userData = {
-      id: googleUser.sub || `google_${Date.now()}`,
-      name: googleUser.name,
-      email: googleUser.email,
-      photo: googleUser.picture,
-      role: 'user',
-      provider: 'google',
-      joinedAt: new Date().toISOString(),
-    };
-    localStorage.setItem('sg_user', JSON.stringify(userData));
-    setUser(userData);
+  const loginWithGoogle = async (googleUser) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/google-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: googleUser.sub,
+          email: googleUser.email,
+          name: googleUser.name,
+          picture: googleUser.picture
+        })
+      });
 
-    // Track users list for admin
-    const users = JSON.parse(localStorage.getItem('sg_users') || '[]');
-    const exists = users.find(u => u.email === userData.email);
-    if (!exists) {
-      users.push(userData);
-      localStorage.setItem('sg_users', JSON.stringify(users));
+      if (!res.ok) {
+        throw new Error('Backend authentication failed.');
+      }
+
+      const data = await res.json();
+      const userData = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        photo: data.user.picture,
+        role: data.user.role,
+        provider: data.user.provider,
+        token: data.jwtToken,
+        joinedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem('sg_user', JSON.stringify(userData));
+      setUser(userData);
+      return userData;
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
-    return userData;
   };
 
-  const loginAdmin = (email, password) => {
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+  const loginAdmin = async (email, password) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/admin-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!res.ok) {
+        return { success: false, error: 'Invalid credentials' };
+      }
+
+      const data = await res.json();
       const adminData = {
-        id: 'admin_001',
-        name: 'Admin',
-        email: ADMIN_EMAIL,
-        photo: null,
-        role: 'admin',
-        provider: 'static',
-        joinedAt: new Date().toISOString(),
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        photo: data.user.picture,
+        role: data.user.role,
+        provider: data.user.provider,
+        token: data.jwtToken,
+        joinedAt: new Date().toISOString()
       };
+
       localStorage.setItem('sg_user', JSON.stringify(adminData));
       setUser(adminData);
       return { success: true, user: adminData };
+    } catch (err) {
+      console.error(err);
+      return { success: false, error: err.message };
     }
-    return { success: false, error: 'Invalid credentials' };
-  };
-
-  const loginTestUser = () => {
-    const testUser = {
-      id: 'test_user_001',
-      name: 'Test User',
-      email: 'testuser@stargraphix.demo',
-      photo: null,
-      role: 'user',
-      provider: 'test',
-      joinedAt: new Date().toISOString(),
-    };
-    localStorage.setItem('sg_user', JSON.stringify(testUser));
-    setUser(testUser);
-    return testUser;
   };
 
   const logout = () => {
@@ -79,14 +91,45 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const updateProfile = (updates) => {
-    const updated = { ...user, ...updates };
-    localStorage.setItem('sg_user', JSON.stringify(updated));
-    setUser(updated);
+  const updateProfile = async (updates) => {
+    // Sync with backend /api/users/me
+    try {
+      const storedUser = localStorage.getItem('sg_user');
+      let token = null;
+      if (storedUser) {
+        token = JSON.parse(storedUser).token;
+      }
+
+      const res = await fetch(`${API_BASE}/users/me`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updates)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const updated = { 
+          ...user, 
+          name: data.name,
+          photo: data.picture
+        };
+        localStorage.setItem('sg_user', JSON.stringify(updated));
+        setUser(updated);
+      }
+    } catch (err) {
+      console.error("Profile update failed:", err);
+      // Fallback local update
+      const updated = { ...user, ...updates };
+      localStorage.setItem('sg_user', JSON.stringify(updated));
+      setUser(updated);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, loginAdmin, loginTestUser, logout, updateProfile, isAdmin: user?.role === 'admin', isLoggedIn: !!user }}>
+    <AuthContext.Provider value={{ user, loading, loginWithGoogle, loginAdmin, logout, updateProfile, isAdmin: user?.role === 'admin', isLoggedIn: !!user }}>
       {children}
     </AuthContext.Provider>
   );

@@ -17,26 +17,69 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [mobileNav, setMobileNav] = useState(false);
 
+  const [productsCount, setProductsCount] = useState(products.length);
+
   useEffect(() => {
-    setOrders(JSON.parse(localStorage.getItem('sg_orders') || '[]'));
-    setUsers(JSON.parse(localStorage.getItem('sg_users') || '[]'));
+    const fetchData = async () => {
+      const storedUser = localStorage.getItem('sg_user');
+      let token = null;
+      if (storedUser) {
+        token = JSON.parse(storedUser).token;
+      }
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+      try {
+        const resOrders = await fetch('http://localhost:5149/api/orders', { headers });
+        if (resOrders.ok) {
+          const dataOrders = await resOrders.json();
+          setOrders(dataOrders);
+        }
+      } catch (err) {
+        console.warn("Backend offline, falling back to local orders for dashboard:", err);
+        setOrders(JSON.parse(localStorage.getItem('sg_orders') || '[]'));
+      }
+
+      try {
+        const resUsers = await fetch('http://localhost:5149/api/users', { headers });
+        if (resUsers.ok) {
+          const dataUsers = await resUsers.json();
+          setUsers(dataUsers);
+        }
+      } catch (err) {
+        console.warn("Backend offline, falling back to local users for dashboard:", err);
+        setUsers(JSON.parse(localStorage.getItem('sg_users') || '[]'));
+      }
+
+      try {
+        const resProducts = await fetch('http://localhost:5149/api/products');
+        if (resProducts.ok) {
+          const dataProducts = await resProducts.json();
+          setProductsCount(dataProducts.length);
+        }
+      } catch (err) {
+        console.warn("Backend offline, falling back to local products count for dashboard:", err);
+        setProductsCount(products.length);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
   const completedOrders = orders.filter(o => o.status === 'Completed').length;
-  const pendingOrders = orders.filter(o => ['Confirmed', 'Processing'].includes(o.status)).length;
+  const pendingOrders = orders.filter(o => ['Pending Verification', 'Placed', 'Confirmed', 'Processing'].includes(o.status)).length;
 
   const stats = [
-    { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: 'TrendingUp', color: 'text-green-600 bg-green-50', change: '+12%' },
-    { label: 'Total Orders', value: orders.length, icon: 'ShoppingBag', color: 'text-blue-600 bg-blue-50', change: '+8%' },
-    { label: 'Registered Users', value: users.length, icon: 'Users', color: 'text-purple-600 bg-purple-50', change: '+5%' },
-    { label: 'Total Products', value: products.length, icon: 'Package', color: 'text-primary-600 bg-primary-50', change: 'Active' },
+    { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: 'TrendingUp', color: 'text-green-600 bg-green-50', change: 'Live' },
+    { label: 'Total Orders', value: orders.length, icon: 'ShoppingBag', color: 'text-blue-600 bg-blue-50', change: 'Live' },
+    { label: 'Registered Users', value: users.length, icon: 'Users', color: 'text-purple-600 bg-purple-50', change: 'Live' },
+    { label: 'Total Products', value: productsCount, icon: 'Package', color: 'text-primary-600 bg-primary-50', change: 'Active' },
   ];
 
   const recentOrders = orders.slice(0, 6);
 
   // Simple bar chart (revenue by status)
-  const statusCounts = { Confirmed: 0, Processing: 0, 'In Progress': 0, Completed: 0, Cancelled: 0 };
+  const statusCounts = { 'Pending Verification': 0, Placed: 0, Rejected: 0, Confirmed: 0, Processing: 0, 'In Progress': 0, Completed: 0, Cancelled: 0 };
   orders.forEach(o => { if (statusCounts[o.status] !== undefined) statusCounts[o.status]++; });
   const maxCount = Math.max(...Object.values(statusCounts), 1);
 

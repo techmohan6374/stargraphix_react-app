@@ -111,7 +111,9 @@ export default function App() {
         <Route path="/free-tools" element={<PublicLayout><FreeTools /></PublicLayout>} />
 
         {/* Auth */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Navigate to="/userlogin" replace />} />
+        <Route path="/userlogin" element={<Login mode="user" />} />
+        <Route path="/adminlogin" element={<Login mode="admin" />} />
 
         {/* Protected user routes */}
         <Route path="/wishlist" element={<ProtectedRoute><PublicLayout><Wishlist /></PublicLayout></ProtectedRoute>} />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById, products } from '../data/products';
 import { useCart } from '../context/CartContext';
@@ -29,7 +29,61 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
 
-  const product = getProductById(id);
+  const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`http://localhost:5149/api/products/${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error('API failed');
+        return res.json();
+      })
+      .then(data => {
+        setProduct(data);
+        
+        // Fetch related products
+        fetch('http://localhost:5149/api/products')
+          .then(r => r.json())
+          .then(all => {
+            const related = all
+              .filter(p => p.subcategory === data.subcategory && p.id !== data.id)
+              .slice(0, 4);
+            setRelatedProducts(related);
+          })
+          .catch(() => {});
+          
+        setLoading(false);
+      })
+      .catch(err => {
+        console.warn("Backend not running, falling back to static product detail:", err);
+        const localProduct = getProductById(id);
+        setProduct(localProduct);
+        if (localProduct) {
+          const related = products
+            .filter(p => p.subcategory === localProduct.subcategory && p.id !== localProduct.id)
+            .slice(0, 4);
+          setRelatedProducts(related);
+        }
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center bg-gray-50 font-outfit">
+        <div className="flex flex-col items-center gap-3">
+          <svg className="animate-spin w-8 h-8 text-primary-600" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <p className="text-gray-400 text-sm font-semibold">Loading service details...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
@@ -39,10 +93,6 @@ export default function ProductDetail() {
       </div>
     );
   }
-
-  const relatedProducts = products
-    .filter(p => p.subcategory === product.subcategory && p.id !== product.id)
-    .slice(0, 4);
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
