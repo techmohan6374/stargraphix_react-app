@@ -50,6 +50,7 @@ function ProtectedRoute({ children, adminOnly = false }) {
 
 // Layout wrapper for public pages (with header + footer)
 function PublicLayout({ children }) {
+  const { isAdmin } = useAuth();
   const [donateOpen, setDonateOpen] = useState(false);
 
   useEffect(() => {
@@ -57,6 +58,10 @@ function PublicLayout({ children }) {
     window.addEventListener('trigger-donate', handleTrigger);
     return () => window.removeEventListener('trigger-donate', handleTrigger);
   }, []);
+
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

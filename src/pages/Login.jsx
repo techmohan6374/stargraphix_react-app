@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import Icon from '../components/icons/Icons';
@@ -16,8 +16,7 @@ export default function Login({ mode = 'user' }) {
   const [errors, setErrors] = useState({});
 
   if (isLoggedIn) {
-    navigate(isAdmin ? '/admin' : '/');
-    return null;
+    return <Navigate to={isAdmin ? '/admin' : '/'} replace />;
   }
 
   const validateAdmin = () => {
