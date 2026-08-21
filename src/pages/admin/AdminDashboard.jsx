@@ -248,7 +248,7 @@ export default function AdminDashboard() {
                       <th className="text-left px-4 py-3 hidden md:table-cell">Items</th>
                       <th className="text-left px-4 py-3">Total</th>
                       <th className="text-left px-4 py-3">Status</th>
-                      <th className="text-left px-4 py-3 hidden lg:table-cell">Date</th>
+                      <th className="text-left px-4 py-3 hidden lg:table-cell">Date & Time</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -266,8 +266,8 @@ export default function AdminDashboard() {
                             {order.status}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-gray-400 text-xs hidden lg:table-cell">
-                          {new Date(order.placedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                        <td className="px-4 py-3 text-gray-500 text-xs hidden lg:table-cell">
+                          {order.placedAt ? new Date(order.placedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A'}
                         </td>
                       </tr>
                     ))}

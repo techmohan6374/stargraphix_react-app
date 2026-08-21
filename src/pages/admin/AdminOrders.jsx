@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import Icon from '../../components/icons/Icons';
+import SearchableSelect from '../../components/ui/SearchableSelect';
 import toast from 'react-hot-toast';
 import { API_BASE } from '../../utils/api';
 import { TableSkeleton } from '../../components/ui/SkeletonLoader';
@@ -145,13 +146,28 @@ export default function AdminOrders() {
               <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by order ID or customer..." className="input-field pl-9" />
             </div>
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {['All', ...statusList].map(s => (
-                <button key={s} onClick={() => setStatusFilter(s)}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${statusFilter === s ? 'bg-primary-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-primary-300'}`}>
-                  {s}
-                </button>
-              ))}
+            <div className="w-full sm:w-64 flex-shrink-0">
+              <SearchableSelect
+                value={statusFilter === 'All' ? '' : statusFilter}
+                onChange={(val) => setStatusFilter(val || 'All')}
+                placeholder="Filter by status (All)..."
+                optionsGroups={[
+                  {
+                    category: 'Status Filter',
+                    items: [
+                      { label: 'All Statuses', value: 'All', desc: 'Show orders with any status' },
+                      { label: 'Pending Verification', value: 'Pending Verification', desc: 'Awaiting admin verification' },
+                      { label: 'Placed', value: 'Placed', desc: 'Order placed & payment verified' },
+                      { label: 'Rejected', value: 'Rejected', desc: 'Payment rejected' },
+                      { label: 'Confirmed', value: 'Confirmed', desc: 'Order confirmed' },
+                      { label: 'Processing', value: 'Processing', desc: 'Design or print processing' },
+                      { label: 'In Progress', value: 'In Progress', desc: 'Work in progress' },
+                      { label: 'Completed', value: 'Completed', desc: 'Order completed' },
+                      { label: 'Cancelled', value: 'Cancelled', desc: 'Order cancelled' },
+                    ],
+                  },
+                ]}
+              />
             </div>
           </div>
 
@@ -185,8 +201,10 @@ export default function AdminOrders() {
                           <p className="font-bold text-gray-900 text-sm">₹{order.total?.toLocaleString('en-IN')}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-400">Date</p>
-                          <p className="text-sm text-gray-600">{new Date(order.placedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                          <p className="text-xs text-gray-400">Date & Time</p>
+                          <p className="text-xs sm:text-sm font-medium text-gray-700">
+                            {order.placedAt ? new Date(order.placedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A'}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">

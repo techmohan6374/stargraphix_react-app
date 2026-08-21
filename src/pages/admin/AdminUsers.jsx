@@ -8,6 +8,7 @@ import Pagination from '../../components/ui/Pagination';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [search, setSearch] = useState('');
   const [mobileNav, setMobileNav] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -18,29 +19,32 @@ export default function AdminUsers() {
     setCurrentPage(1);
   }, [search]);
 
-  const fetchUsers = async () => {
+  const fetchUsersAndOrders = async () => {
+    const storedUser = localStorage.getItem('sg_user');
+    let token = null;
+    if (storedUser) {
+      token = JSON.parse(storedUser).token;
+    }
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
     try {
       setLoading(true);
-      const storedUser = localStorage.getItem('sg_user');
-      let token = null;
-      if (storedUser) {
-        token = JSON.parse(storedUser).token;
+      const res = await fetch(`${API_BASE}/users`, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = data.map(u => ({
+          id: u.id || u._id,
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          provider: u.provider,
+          joinedAt: u.joinedAt || u.joinedDate || u.createdAt || new Date().toISOString(),
+          photo: u.picture || u.photo || null
+        }));
+        setUsers(mapped);
+      } else {
+        throw new Error('Failed to fetch users');
       }
-      const res = await fetch(`${API_BASE}/users`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-      });
-      if (!res.ok) throw new Error('Failed to fetch users');
-      const data = await res.json();
-      const mapped = data.map(u => ({
-        id: u.id,
-        name: u.name,
-        email: u.email,
-        role: u.role,
-        provider: u.provider,
-        joinedAt: u.joinedAt || u.joinedDate || new Date().toISOString(),
-        photo: u.picture || u.photo || null
-      }));
-      setUsers(mapped);
     } catch (err) {
       console.warn("Backend not running, falling back to local users:", err);
       const stored = JSON.parse(localStorage.getItem('sg_users') || '[]');
@@ -50,13 +54,26 @@ export default function AdminUsers() {
       };
       const hasAdmin = stored.find(u => u.role === 'admin');
       setUsers(hasAdmin ? stored : [adminUser, ...stored]);
+    }
+
+    try {
+      const resOrders = await fetch(`${API_BASE}/orders`, { headers });
+      if (resOrders.ok) {
+        const dataOrders = await resOrders.json();
+        setOrders(dataOrders);
+      } else {
+        setOrders(JSON.parse(localStorage.getItem('sg_orders') || '[]'));
+      }
+    } catch (err) {
+      console.warn("Backend offline, falling back to local orders for users page:", err);
+      setOrders(JSON.parse(localStorage.getItem('sg_orders') || '[]'));
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsersAndOrders();
   }, []);
 
   const filtered = users.filter(u =>
@@ -65,9 +82,16 @@ export default function AdminUsers() {
     u.email?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const getOrders = (userId) => {
-    const orders = JSON.parse(localStorage.getItem('sg_orders') || '[]');
-    return orders.filter(o => o.userId === userId);
+  const getUserOrders = (user) => {
+    if (!user) return [];
+    return orders.filter(o => {
+      const matchId = (o.userId && user.id && String(o.userId) === String(user.id)) ||
+                      (o.userId && user._id && String(o.userId) === String(user._id));
+      const orderEmail = (o.email || o.address?.email || '').toLowerCase().trim();
+      const userEmail = (user.email || '').toLowerCase().trim();
+      const matchEmail = Boolean(userEmail && orderEmail && orderEmail === userEmail);
+      return matchId || matchEmail;
+    });
   };
 
   const handleDeleteUser = async (userId) => {
@@ -149,13 +173,13 @@ export default function AdminUsers() {
                         <th className="text-left px-4 py-3">Role</th>
                         <th className="text-left px-4 py-3 hidden md:table-cell">Provider</th>
                         <th className="text-left px-4 py-3 hidden lg:table-cell">Orders</th>
-                        <th className="text-left px-4 py-3 hidden lg:table-cell">Joined</th>
+                        <th className="text-left px-4 py-3 hidden lg:table-cell">Joined Date & Time</th>
                         <th className="text-left px-4 py-3">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {paginatedUsers.map((user) => {
-                        const userOrders = getOrders(user.id);
+                        const userOrders = getUserOrders(user);
                         return (
                           <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-4 py-3">
@@ -188,8 +212,8 @@ export default function AdminUsers() {
                             <td className="px-4 py-3 hidden lg:table-cell">
                               <span className="text-sm font-semibold text-gray-700">{userOrders.length}</span>
                             </td>
-                            <td className="px-4 py-3 hidden lg:table-cell text-xs text-gray-400">
-                              {user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                            <td className="px-4 py-3 hidden lg:table-cell text-xs text-gray-500">
+                              {user.joinedAt ? new Date(user.joinedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A'}
                             </td>
                             <td className="px-4 py-3">
                               {user.role !== 'admin' && (

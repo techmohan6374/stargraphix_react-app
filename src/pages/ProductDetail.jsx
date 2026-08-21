@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ui/ProductCard';
+import ImageMagnifier from '../components/ui/ImageMagnifier';
 import Icon from '../components/icons/Icons';
 import toast from 'react-hot-toast';
 import { API_BASE } from '../utils/api';
@@ -125,10 +126,10 @@ export default function ProductDetail() {
           {/* Image section */}
           <div>
             <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 mb-3">
-              <img
+              <ImageMagnifier
                 src={product.images?.[activeImg] || product.image}
                 alt={product.name}
-                className="w-full h-80 md:h-96 object-cover"
+                zoomLevel={2.5}
               />
             </div>
             {product.images?.length > 1 && (

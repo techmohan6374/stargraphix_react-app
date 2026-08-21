@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Icon from '../components/icons/Icons';
+import SearchableSelect from '../components/ui/SearchableSelect';
 import toast from 'react-hot-toast';
 
 export default function Contact() {
@@ -132,18 +133,11 @@ export default function Contact() {
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-gray-700 mb-1 block">Service Needed</label>
-                    <select value={form.subject} onChange={e => setForm({...form, subject: e.target.value})} className="input-field">
-                      <option value="">Select a service...</option>
-                      <option>Flyers Design</option>
-                      <option>Business Cards</option>
-                      <option>Resume Design</option>
-                      <option>Instagram Posts</option>
-                      <option>Wedding Cards</option>
-                      <option>Web Development</option>
-                      <option>Mobile App Development</option>
-                      <option>Logo Design</option>
-                      <option>Other</option>
-                    </select>
+                    <SearchableSelect
+                      value={form.subject}
+                      onChange={(val) => setForm({ ...form, subject: val })}
+                      placeholder="Select a service..."
+                    />
                   </div>
                 </div>
                 <div className="mb-5">
