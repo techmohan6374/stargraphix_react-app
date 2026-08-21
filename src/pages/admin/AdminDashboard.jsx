@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import Icon from '../../components/icons/Icons';
 import { products } from '../../data/products';
+import { API_BASE } from '../../utils/api';
+import { StatsSkeleton, TableSkeleton } from '../../components/ui/SkeletonLoader';
 
 const statusColors = {
   Confirmed: 'bg-blue-100 text-blue-700',
@@ -16,8 +18,8 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
   const [mobileNav, setMobileNav] = useState(false);
-
   const [productsCount, setProductsCount] = useState(products.length);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +31,8 @@ export default function AdminDashboard() {
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
       try {
-        const resOrders = await fetch('http://localhost:5149/api/orders', { headers });
+        setLoading(true);
+        const resOrders = await fetch(`${API_BASE}/orders`, { headers });
         if (resOrders.ok) {
           const dataOrders = await resOrders.json();
           setOrders(dataOrders);
@@ -40,7 +43,7 @@ export default function AdminDashboard() {
       }
 
       try {
-        const resUsers = await fetch('http://localhost:5149/api/users', { headers });
+        const resUsers = await fetch(`${API_BASE}/users`, { headers });
         if (resUsers.ok) {
           const dataUsers = await resUsers.json();
           setUsers(dataUsers);
@@ -51,7 +54,7 @@ export default function AdminDashboard() {
       }
 
       try {
-        const resProducts = await fetch('http://localhost:5149/api/products');
+        const resProducts = await fetch(`${API_BASE}/products`);
         if (resProducts.ok) {
           const dataProducts = await resProducts.json();
           setProductsCount(dataProducts.length);
@@ -59,6 +62,8 @@ export default function AdminDashboard() {
       } catch (err) {
         console.warn("Backend offline, falling back to local products count for dashboard:", err);
         setProductsCount(products.length);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -83,10 +88,36 @@ export default function AdminDashboard() {
   orders.forEach(o => { if (statusCounts[o.status] !== undefined) statusCounts[o.status]++; });
   const maxCount = Math.max(...Object.values(statusCounts), 1);
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-gray-100 font-outfit">
+        <div className="hidden md:block w-56 fixed inset-y-0 left-0 z-20">
+          <AdminSidebar />
+        </div>
+        <div className="flex-1 md:ml-56 min-w-0">
+          <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+            <div className="flex items-center gap-3">
+              <h1 className="text-lg font-bold text-gray-900">Dashboard</h1>
+            </div>
+          </header>
+          <div className="p-4 sm:p-6">
+            <StatsSkeleton />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <div className="lg:col-span-2">
+                <TableSkeleton rows={4} cols={4} />
+              </div>
+              <div className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse h-[200px]" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-100 font-outfit">
       {/* Sidebar - desktop */}
-      <div className="hidden md:flex">
+      <div className="hidden md:block w-56 fixed inset-y-0 left-0 z-20">
         <AdminSidebar />
       </div>
 
@@ -101,7 +132,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Main */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 md:ml-56 min-w-0">
         {/* Top bar */}
         <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">

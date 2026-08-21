@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Icon from '../components/icons/Icons';
 import toast from 'react-hot-toast';
 import { openRazorpay } from '../utils/razorpay';
+import { API_BASE } from '../utils/api';
 
 export default function Checkout() {
   const { cart, cartTotal, clearCart } = useCart();
@@ -50,7 +51,7 @@ export default function Checkout() {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('http://localhost:5149/api/orders/upload-screenshot', {
+      const res = await fetch(`${API_BASE}/orders/upload-screenshot`, {
         method: 'POST',
         body: formData
       });
@@ -100,7 +101,7 @@ export default function Checkout() {
     };
 
     try {
-      const res = await fetch('http://localhost:5149/api/orders', {
+      const res = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)

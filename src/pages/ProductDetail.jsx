@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ui/ProductCard';
 import Icon from '../components/icons/Icons';
 import toast from 'react-hot-toast';
+import { API_BASE } from '../utils/api';
 
 function StarRating({ rating }) {
   return (
@@ -35,7 +36,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:5149/api/products/${id}`)
+    fetch(`${API_BASE}/products/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('API failed');
         return res.json();
@@ -44,7 +45,7 @@ export default function ProductDetail() {
         setProduct(data);
         
         // Fetch related products
-        fetch('http://localhost:5149/api/products')
+        fetch(`${API_BASE}/products`)
           .then(r => r.json())
           .then(all => {
             const related = all

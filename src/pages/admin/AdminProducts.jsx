@@ -3,6 +3,9 @@ import AdminSidebar from '../../components/admin/AdminSidebar';
 import Icon from '../../components/icons/Icons';
 import { products as defaultProducts } from '../../data/products';
 import toast from 'react-hot-toast';
+import { API_BASE } from '../../utils/api';
+import { TableSkeleton } from '../../components/ui/SkeletonLoader';
+import Pagination from '../../components/ui/Pagination';
 
 const emptyForm = { name: '', price: '', originalPrice: '', category: 'design-printing', subcategory: 'flyers', description: '', badge: '', features: '', image: '', inStock: true };
 
@@ -14,18 +17,27 @@ export default function AdminProducts() {
   const [search, setSearch] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [mobileNav, setMobileNav] = useState(false);
-
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:5149/api/products');
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/products`);
       const data = await res.json();
       setProducts(data);
     } catch (err) {
       console.warn("Backend not running, falling back to static products:", err);
       const stored = localStorage.getItem('sg_products');
       setProducts(stored ? JSON.parse(stored) : defaultProducts);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,7 +52,7 @@ export default function AdminProducts() {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('http://localhost:5149/api/products/upload-image', {
+      const res = await fetch(`${API_BASE}/products/upload-image`, {
         method: 'POST',
         body: formData
       });
@@ -72,8 +84,8 @@ export default function AdminProducts() {
 
     try {
       const url = editId 
-        ? `http://localhost:5149/api/products/${editId}` 
-        : 'http://localhost:5149/api/products';
+        ? `${API_BASE}/products/${editId}` 
+        : `${API_BASE}/products`;
       const method = editId ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -119,7 +131,7 @@ export default function AdminProducts() {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5149/api/products/${id}`, {
+      const res = await fetch(`${API_BASE}/products/${id}`, {
         method: 'DELETE'
       });
       if (!res.ok) throw new Error('Delete failed');
@@ -140,7 +152,7 @@ export default function AdminProducts() {
     if (!item) return;
     const updatedItem = { ...item, inStock: !item.inStock };
     try {
-      const res = await fetch(`http://localhost:5149/api/products/${id}`, {
+      const res = await fetch(`${API_BASE}/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedItem)
@@ -160,9 +172,11 @@ export default function AdminProducts() {
     p.subcategory?.includes(search.toLowerCase())
   );
 
+  const paginatedProducts = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <div className="flex min-h-screen bg-gray-100 font-outfit">
-      <div className="hidden md:flex"><AdminSidebar /></div>
+      <div className="hidden md:block w-56 fixed inset-y-0 left-0 z-20"><AdminSidebar /></div>
       {mobileNav && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setMobileNav(false)} />
@@ -172,7 +186,7 @@ export default function AdminProducts() {
         </div>
       )}
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 md:ml-56 min-w-0">
         {/* Top bar */}
         <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
@@ -300,75 +314,87 @@ export default function AdminProducts() {
           </div>
 
           {/* Products table */}
-          <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  <tr>
-                    <th className="text-left px-4 py-3">Product</th>
-                    <th className="text-left px-4 py-3 hidden sm:table-cell">Category</th>
-                    <th className="text-left px-4 py-3">Price</th>
-                    <th className="text-left px-4 py-3 hidden md:table-cell">Badge</th>
-                    <th className="text-left px-4 py-3">Stock</th>
-                    <th className="text-left px-4 py-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {filtered.map((product) => (
-                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <img src={product.image} alt={product.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 bg-gray-100" />
-                          <p className="font-medium text-gray-800 text-xs line-clamp-2 max-w-[160px]">{product.name}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 hidden sm:table-cell">
-                        <span className="text-xs text-gray-500 capitalize">{product.subcategory?.replace(/-/g, ' ')}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="font-bold text-gray-900 text-xs">₹{product.price?.toLocaleString('en-IN')}</p>
-                        {product.originalPrice && <p className="text-xs text-gray-400 line-through">₹{product.originalPrice?.toLocaleString('en-IN')}</p>}
-                      </td>
-                      <td className="px-4 py-3 hidden md:table-cell">
-                        {product.badge ? (
-                          <span className="text-xs font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded-full">{product.badge}</span>
-                        ) : <span className="text-gray-300 text-xs">—</span>}
-                      </td>
-                      <td className="px-4 py-3">
-                        <button onClick={() => toggleStock(product.id)}
-                          className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${product.inStock ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}>
-                          {product.inStock ? 'In Stock' : 'Out'}
-                        </button>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => handleEdit(product)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                            <Icon name="Edit" size={14} />
-                          </button>
-                          {deleteConfirm === product.id ? (
-                            <div className="flex items-center gap-1">
-                              <button onClick={() => handleDelete(product.id)} className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded hover:bg-red-100">Yes</button>
-                              <button onClick={() => setDeleteConfirm(null)} className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded hover:bg-gray-200">No</button>
+          {loading ? (
+            <TableSkeleton rows={8} cols={6} />
+          ) : (
+            <>
+              <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      <tr>
+                        <th className="text-left px-4 py-3">Product</th>
+                        <th className="text-left px-4 py-3 hidden sm:table-cell">Category</th>
+                        <th className="text-left px-4 py-3">Price</th>
+                        <th className="text-left px-4 py-3 hidden md:table-cell">Badge</th>
+                        <th className="text-left px-4 py-3">Stock</th>
+                        <th className="text-left px-4 py-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {paginatedProducts.map((product) => (
+                        <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <img src={product.image} alt={product.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 bg-gray-100" />
+                              <p className="font-medium text-gray-800 text-xs line-clamp-2 max-w-[160px]">{product.name}</p>
                             </div>
-                          ) : (
-                            <button onClick={() => setDeleteConfirm(product.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                              <Icon name="Trash" size={14} />
+                          </td>
+                          <td className="px-4 py-3 hidden sm:table-cell">
+                            <span className="text-xs text-gray-500 capitalize">{product.subcategory?.replace(/-/g, ' ')}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="font-bold text-gray-900 text-xs">₹{product.price?.toLocaleString('en-IN')}</p>
+                            {product.originalPrice && <p className="text-xs text-gray-400 line-through">₹{product.originalPrice?.toLocaleString('en-IN')}</p>}
+                          </td>
+                          <td className="px-4 py-3 hidden md:table-cell">
+                            {product.badge ? (
+                              <span className="text-xs font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded-full">{product.badge}</span>
+                            ) : <span className="text-gray-300 text-xs">—</span>}
+                          </td>
+                          <td className="px-4 py-3">
+                            <button onClick={() => toggleStock(product.id)}
+                              className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${product.inStock ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}>
+                              {product.inStock ? 'In Stock' : 'Out'}
                             </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {filtered.length === 0 && (
-                <div className="text-center py-10 text-gray-400">
-                  <Icon name="Package" size={32} className="mx-auto mb-2" />
-                  <p className="text-sm">No products found</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1">
+                              <button onClick={() => handleEdit(product)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                <Icon name="Edit" size={14} />
+                              </button>
+                              {deleteConfirm === product.id ? (
+                                <div className="flex items-center gap-1">
+                                  <button onClick={() => handleDelete(product.id)} className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded hover:bg-red-100">Yes</button>
+                                  <button onClick={() => setDeleteConfirm(null)} className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded hover:bg-gray-200">No</button>
+                                </div>
+                              ) : (
+                                <button onClick={() => setDeleteConfirm(product.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                  <Icon name="Trash" size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {filtered.length === 0 && (
+                    <div className="text-center py-10 text-gray-400">
+                      <Icon name="Package" size={32} className="mx-auto mb-2" />
+                      <p className="text-sm">No products found</p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filtered.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>

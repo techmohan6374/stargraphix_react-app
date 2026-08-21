@@ -4,6 +4,9 @@ import ProductCard from '../components/ui/ProductCard';
 import Icon from '../components/icons/Icons';
 import { products } from '../data/products';
 import { categories } from '../data/categories';
+import { API_BASE } from '../utils/api';
+import { GridSkeleton } from '../components/ui/SkeletonLoader';
+import Pagination from '../components/ui/Pagination';
 
 const sortOptions = [
   { value: 'featured', label: 'Featured' },
@@ -29,9 +32,11 @@ export default function Products() {
   
   const [productsList, setProductsList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
-    fetch('http://localhost:5149/api/products')
+    fetch(`${API_BASE}/products`)
       .then(res => {
         if (!res.ok) throw new Error('API failed');
         return res.json();
@@ -48,17 +53,29 @@ export default function Products() {
       });
   }, []);
 
+  // Reset page on filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchParams, sortBy, selectedPriceRange]);
+
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-gray-50 font-outfit">
-        <div className="flex flex-col items-center gap-3">
-          <svg className="animate-spin w-8 h-8 text-primary-600" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          <p className="text-gray-400 text-sm font-semibold">Loading services...</p>
+      <main className="min-h-screen bg-gray-50 font-outfit mt-[90px] sm:mt-[108px] md:mt-[120px]">
+        <div className="bg-white border-b border-gray-100 py-4">
+          <div className="container-custom flex flex-col gap-2">
+            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
+          </div>
         </div>
-      </div>
+        <div className="container-custom py-6">
+          <div className="flex gap-6">
+            <aside className="w-56 flex-shrink-0 hidden sm:block bg-white rounded-xl border border-gray-100 p-4 h-[300px] animate-pulse" />
+            <div className="flex-1">
+              <GridSkeleton count={6} />
+            </div>
+          </div>
+        </div>
+      </main>
     );
   }
 
@@ -92,6 +109,9 @@ export default function Products() {
       default: return 0;
     }
   });
+
+  const totalItems = filtered.length;
+  const paginatedProducts = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const allSubcats = [...new Set(productsList.map(p => p.subcategory))];
   const activeCategoryName = categoryFilter
@@ -222,14 +242,22 @@ export default function Products() {
                 </button>
               </div>
             ) : (
-              <div className={view === 'grid'
-                ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4'
-                : 'flex flex-col gap-3'
-              }>
-                {filtered.map((product) => (
-                  <ProductCard key={product.id} product={product} compact={view === 'list'} />
-                ))}
-              </div>
+              <>
+                <div className={view === 'grid'
+                  ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4'
+                  : 'flex flex-col gap-3'
+                }>
+                  {paginatedProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} compact={view === 'list'} />
+                  ))}
+                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={totalItems}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
+                />
+              </>
             )}
           </div>
         </div>

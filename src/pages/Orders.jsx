@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Icon from '../components/icons/Icons';
+import { API_BASE } from '../utils/api';
 
 const statusColors = {
   Confirmed: 'bg-blue-100 text-blue-700',
@@ -31,8 +32,8 @@ export default function Orders() {
     }
 
     const url = user.role === 'admin' 
-      ? 'http://localhost:5149/api/orders'
-      : `http://localhost:5149/api/orders?userId=${user.id}`;
+      ? `${API_BASE}/orders`
+      : `${API_BASE}/orders?userId=${user.id}`;
 
     fetch(url, {
       headers: token ? { 'Authorization': `Bearer ${token}` } : {}
