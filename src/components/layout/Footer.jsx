@@ -174,8 +174,8 @@ export default function Footer() {
               </button>
               <Link to="/about" className="text-gray-500 hover:text-gray-300 text-xs transition-colors">About</Link>
               <Link to="/contact" className="text-gray-500 hover:text-gray-300 text-xs transition-colors">Contact</Link>
-              <span className="text-gray-500 text-xs">Privacy Policy</span>
-              <span className="text-gray-500 text-xs">Terms of Service</span>
+              <Link to="/privacy" className="text-gray-500 hover:text-gray-300 text-xs transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="text-gray-500 hover:text-gray-300 text-xs transition-colors">Terms of Service</Link>
             </div>
           </div>
         </div>

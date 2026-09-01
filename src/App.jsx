@@ -24,6 +24,8 @@ import Contact from './pages/Contact';
 import Portal from './pages/Portal';
 import FreeTools from './pages/FreeTools';
 import ToolWorkspace from './pages/ToolWorkspace';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -118,6 +120,12 @@ export default function App() {
         <Route path="/free-tools" element={<PublicLayout><FreeTools /></PublicLayout>} />
         <Route path="/free-tools/:toolId" element={<ToolWorkspace />} />
 
+        {/* Legal pages */}
+        <Route path="/terms" element={<PublicLayout><TermsOfService /></PublicLayout>} />
+        <Route path="/terms-of-service" element={<PublicLayout><TermsOfService /></PublicLayout>} />
+        <Route path="/privacy" element={<PublicLayout><PrivacyPolicy /></PublicLayout>} />
+        <Route path="/privacy-policy" element={<PublicLayout><PrivacyPolicy /></PublicLayout>} />
+
         {/* Auth */}
         <Route path="/login" element={<Navigate to="/userlogin" replace />} />
         <Route path="/userlogin" element={<Login mode="user" />} />
@@ -139,7 +147,7 @@ export default function App() {
         {/* 404 */}
         <Route path="*" element={
           <PublicLayout>
-            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 font-outfit">
               <p className="text-8xl font-black text-primary-600 mb-4">404</p>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Page Not Found</h2>
               <p className="text-gray-500 mb-6">The page you're looking for doesn't exist.</p>

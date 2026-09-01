@@ -152,8 +152,8 @@ export default function Login({ mode = 'user' }) {
               <div className="mt-6 text-center">
                 <p className="text-xs text-gray-400">
                   By signing in, you agree to our{' '}
-                  <span className="text-primary-600 cursor-pointer hover:underline">Terms of Service</span> and{' '}
-                  <span className="text-primary-600 cursor-pointer hover:underline">Privacy Policy</span>
+                  <Link to="/terms" className="text-primary-600 font-semibold hover:underline">Terms of Service</Link> and{' '}
+                  <Link to="/privacy" className="text-primary-600 font-semibold hover:underline">Privacy Policy</Link>
                 </p>
               </div>
             </div>
