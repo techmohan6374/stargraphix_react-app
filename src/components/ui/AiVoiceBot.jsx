@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Visualizer from './Visualizer';
 
 // ─── Configuration ────────────────────────────────────────────────────────────
@@ -39,9 +40,10 @@ You are the virtual assistant for Star Graphix, a company providing professional
 
 export default function AiVoiceBot() {
   const location = useLocation();
+  const { user, isLoggedIn } = useAuth();
 
-  // Hide AI bot on all admin routes
-  if (location.pathname.startsWith('/admin')) {
+  // Hide AI bot if not logged in or on admin routes
+  if (!isLoggedIn || !user || location.pathname.startsWith('/admin')) {
     return null;
   }
   const [isOpen, setIsOpen] = useState(false);

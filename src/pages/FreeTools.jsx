@@ -36,6 +36,14 @@ export default function FreeTools() {
   // Tool definitions with metadata
   const tools = [
     {
+      id: 'skill-tester',
+      name: 'Star Graphix AI Skill Tester',
+      desc: 'Test your skills in CorelDRAW, HTML/CSS, Adobe InDesign, Tech CEO, or Entrepreneurship with 10 questions and earn a downloadable certificate card.',
+      icon: 'Award',
+      badge: 'New',
+      gradient: 'from-amber-500 to-orange-600',
+    },
+    {
       id: 'text-share',
       name: 'Encrypted Text Sharing Tool',
       desc: 'Encode messages, notes, or Tamil script into shareable URL parameters (btoa/atob). Copy link or scan QR code.',
