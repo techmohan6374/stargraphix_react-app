@@ -44,9 +44,13 @@ export default function ToolWorkspace() {
   const { user, isLoggedIn, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Enforce Google Auth login check safely on page refresh
+  // Enforce Google Auth login check safely on page refresh (with public exception for text-share)
   useEffect(() => {
     if (loading) return; // Wait until AuthContext initializes user state from localStorage on page refresh
+
+    // Public exception for Encrypted Text Sharing links
+    const isPublicTool = toolId === 'text-share';
+    if (isPublicTool) return;
 
     const hasStoredUser = !!localStorage.getItem('sg_user');
     if (!isLoggedIn && !user && !hasStoredUser) {
@@ -55,7 +59,7 @@ export default function ToolWorkspace() {
       });
       navigate('/userlogin');
     }
-  }, [isLoggedIn, user, loading, navigate]);
+  }, [isLoggedIn, user, loading, navigate, toolId]);
 
   const tool = TOOLS_LIST.find((t) => t.id === toolId);
 
@@ -117,8 +121,9 @@ export default function ToolWorkspace() {
     );
   }
 
+  const isPublicTool = toolId === 'text-share';
   const hasStoredUser = !!localStorage.getItem('sg_user');
-  if (!isLoggedIn && !user && !hasStoredUser) {
+  if (!isPublicTool && !isLoggedIn && !user && !hasStoredUser) {
     return null;
   }
 

@@ -23,7 +23,7 @@ export default function FreeTools() {
   const navigate = useNavigate();
 
   const handleOpenTool = (toolId) => {
-    if (!isLoggedIn || !user) {
+    if (toolId !== 'text-share' && (!isLoggedIn || !user)) {
       toast.error('Please sign in with Google Auth to access Creative Tools!', {
         duration: 4000,
       });
@@ -206,7 +206,7 @@ export default function FreeTools() {
                 </div>
 
                 <div className="pt-4 flex items-center gap-1 text-[10px] font-bold transition-colors uppercase tracking-wider mt-2">
-                  {isLoggedIn && user ? (
+                  {(isLoggedIn && user) || tool.id === 'text-share' ? (
                     <span className="text-primary-600 group-hover:text-primary-700 flex items-center gap-1">
                       Open Tool <Icon name="ArrowRight" size={10} className="group-hover:translate-x-0.5 transition-transform" />
                     </span>
