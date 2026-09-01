@@ -36,14 +36,6 @@ export default function FreeTools() {
   // Tool definitions with metadata
   const tools = [
     {
-      id: 'figma-mini',
-      name: 'Figma Mini Studio',
-      desc: 'Vector design canvas with icon toolbars, Tamil & Web fonts, shape drawing, gradients, shadows, PowerClip, and Ultra-HD export.',
-      icon: 'Grid',
-      badge: 'New',
-      gradient: 'from-pink-600 to-indigo-600',
-    },
-    {
       id: 'file-converter',
       name: 'Universal File Converter',
       desc: 'Convert images to PNG/JPG/WebP/BMP, merge images into PDF, or extract audio tracks from MP4/WebM videos.',
