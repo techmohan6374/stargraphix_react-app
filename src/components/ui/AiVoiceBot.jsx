@@ -487,7 +487,7 @@ export default function AiVoiceBot() {
                     onMouseEnter={e => e.target.style.transform = 'scale(1.04)'}
                     onMouseLeave={e => e.target.style.transform = 'scale(1)'}
                   >
-                    功能 End Call
+                    📵 End Call
                   </button>
                 )}
               </div>
