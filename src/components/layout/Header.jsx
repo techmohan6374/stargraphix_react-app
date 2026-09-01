@@ -299,7 +299,7 @@ export default function Header() {
               <Icon name="Zap" size={14} className="text-primary-600" />Creative Portal
             </Link>
             <Link to="/free-tools" className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all whitespace-nowrap">
-              <Icon name="Cpu" size={14} className="text-indigo-600" />Free AI Tools
+              <Icon name="Cpu" size={14} className="text-indigo-600" />Tools
             </Link>
             <Link to="/about" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all whitespace-nowrap">About</Link>
             <Link to="/contact" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-all whitespace-nowrap">Contact</Link>
@@ -344,7 +344,7 @@ export default function Header() {
                 <Icon name="Zap" size={14} className="text-primary-600" /> Creative Portal
               </Link>
               <Link to="/free-tools" onClick={() => setMobileMenuOpen(false)} className="w-full text-center block px-3 py-2.5 text-sm font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-lg transition-all flex items-center justify-center gap-1.5 mb-2">
-                <Icon name="Cpu" size={14} className="text-indigo-600" /> Free AI Tools
+                <Icon name="Cpu" size={14} className="text-indigo-600" /> Tools
               </Link>
               <button
                 onClick={() => {

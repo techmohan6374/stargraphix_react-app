@@ -117,6 +117,7 @@ export default function AdminUsers() {
     }
   };
 
+  const [selectedUser, setSelectedUser] = useState(null);
   const paginatedUsers = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
@@ -160,20 +161,17 @@ export default function AdminUsers() {
 
           {/* Users table */}
           {loading ? (
-            <TableSkeleton rows={6} cols={5} />
+            <TableSkeleton rows={6} cols={4} />
           ) : (
             <>
-              <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
                       <tr>
                         <th className="text-left px-4 py-3">User</th>
-                        <th className="text-left px-4 py-3 hidden sm:table-cell">Email</th>
                         <th className="text-left px-4 py-3">Role</th>
-                        <th className="text-left px-4 py-3 hidden md:table-cell">Provider</th>
-                        <th className="text-left px-4 py-3 hidden lg:table-cell">Orders</th>
-                        <th className="text-left px-4 py-3 hidden lg:table-cell">Joined Date & Time</th>
+                        <th className="text-left px-4 py-3">Orders</th>
                         <th className="text-left px-4 py-3">Actions</th>
                       </tr>
                     </thead>
@@ -181,46 +179,50 @@ export default function AdminUsers() {
                       {paginatedUsers.map((user) => {
                         const userOrders = getUserOrders(user);
                         return (
-                          <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                          <tr key={user.id} className="hover:bg-gray-50/80 transition-colors">
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
                                 {user.photo ? (
-                                  <img src={user.photo} alt={user.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                                  <img src={user.photo} alt={user.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-gray-200" />
                                 ) : (
-                                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${user.role === 'admin' ? 'bg-primary-600' : 'bg-gray-400'}`}>
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${user.role === 'admin' ? 'bg-primary-600' : 'bg-gray-500'}`}>
                                     {user.name?.charAt(0).toUpperCase()}
                                   </div>
                                 )}
-                                <div>
-                                  <p className="font-semibold text-gray-800 text-sm">{user.name}</p>
-                                  <p className="text-xs text-gray-400 sm:hidden truncate max-w-[120px]">{user.email}</p>
+                                <div className="min-w-0">
+                                  <p className="font-semibold text-gray-900 text-sm truncate">{user.name}</p>
+                                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-gray-600 hidden sm:table-cell text-xs truncate max-w-[160px]">{user.email}</td>
                             <td className="px-4 py-3">
-                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${user.role === 'admin' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600'}`}>
+                              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${user.role === 'admin' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-700'}`}>
                                 {user.role === 'admin' ? 'Admin' : 'Customer'}
                               </span>
                             </td>
-                            <td className="px-4 py-3 hidden md:table-cell">
-                              <div className="flex items-center gap-1.5">
-                                <Icon name={user.provider === 'google' ? 'Google' : 'Shield'} size={14} />
-                                <span className="text-xs text-gray-500 capitalize">{user.provider}</span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 hidden lg:table-cell">
-                              <span className="text-sm font-semibold text-gray-700">{userOrders.length}</span>
-                            </td>
-                            <td className="px-4 py-3 hidden lg:table-cell text-xs text-gray-500">
-                              {user.joinedAt ? new Date(user.joinedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A'}
+                            <td className="px-4 py-3">
+                              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${userOrders.length > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+                                {userOrders.length} {userOrders.length === 1 ? 'Order' : 'Orders'}
+                              </span>
                             </td>
                             <td className="px-4 py-3">
-                              {user.role !== 'admin' && (
-                                <button onClick={() => handleDeleteUser(user.id)} className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                                  <Icon name="Trash" size={14} />
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => setSelectedUser(user)}
+                                  className="flex items-center gap-1.5 text-xs font-bold bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-100 px-3 py-1.5 rounded-lg transition-all shadow-xs"
+                                >
+                                  <Icon name="Eye" size={14} /> View
                                 </button>
-                              )}
+                                {user.role !== 'admin' && (
+                                  <button
+                                    onClick={() => handleDeleteUser(user.id)}
+                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                    title="Delete User"
+                                  >
+                                    <Icon name="Trash" size={14} />
+                                  </button>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         );
@@ -245,6 +247,119 @@ export default function AdminUsers() {
           )}
         </div>
       </div>
+
+      {/* Comprehensive User Details View Modal */}
+      {selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedUser(null)}>
+          <div className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 transition-all" onClick={e => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+              <div className="flex items-center gap-3">
+                {selectedUser.photo ? (
+                  <img src={selectedUser.photo} alt={selectedUser.name} className="w-12 h-12 rounded-full object-cover border-2 border-primary-100" />
+                ) : (
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${selectedUser.role === 'admin' ? 'bg-primary-600' : 'bg-gray-600'}`}>
+                    {selectedUser.name?.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-gray-900">{selectedUser.name}</h2>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${selectedUser.role === 'admin' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600'}`}>
+                      {selectedUser.role === 'admin' ? 'Admin' : 'Customer'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500">{selectedUser.email}</p>
+                </div>
+              </div>
+              <button onClick={() => setSelectedUser(null)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors">
+                <Icon name="X" size={16} />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Profile Details Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <p className="text-xs text-gray-400 font-medium">Auth Provider</p>
+                  <p className="text-sm font-bold text-gray-800 capitalize mt-0.5 flex items-center gap-1.5">
+                    <Icon name={selectedUser.provider === 'google' ? 'Google' : 'Shield'} size={14} className="text-primary-600" />
+                    {selectedUser.provider || 'Static'}
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <p className="text-xs text-gray-400 font-medium">Total Orders</p>
+                  <p className="text-sm font-bold text-blue-600 mt-0.5">
+                    {getUserOrders(selectedUser).length} Placed
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 col-span-2 sm:col-span-1">
+                  <p className="text-xs text-gray-400 font-medium">Total Lifetime Spent</p>
+                  <p className="text-sm font-bold text-green-600 mt-0.5">
+                    ₹{getUserOrders(selectedUser).reduce((acc, o) => acc + (o.total || 0), 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Joined Information */}
+              <div className="bg-gray-50/60 rounded-xl p-3.5 border border-gray-100 flex items-center justify-between text-xs">
+                <span className="text-gray-500 font-medium">Account Created / Joined:</span>
+                <span className="font-bold text-gray-800">
+                  {selectedUser.joinedAt ? new Date(selectedUser.joinedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A'}
+                </span>
+              </div>
+
+              {/* User Orders History */}
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2 mb-3">
+                  <Icon name="ShoppingBag" size={16} className="text-primary-600" /> Order History ({getUserOrders(selectedUser).length})
+                </h3>
+                {getUserOrders(selectedUser).length === 0 ? (
+                  <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-gray-400">
+                    <Icon name="ShoppingBag" size={28} className="mx-auto mb-1.5 opacity-60" />
+                    <p className="text-xs font-semibold text-gray-500">No orders placed yet</p>
+                    <p className="text-[11px] text-gray-400">This user hasn't made any purchases on Star Graphix.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
+                    {getUserOrders(selectedUser).map((order) => (
+                      <div key={order.id} className="p-3.5 rounded-xl border border-gray-100 bg-white hover:border-gray-200 transition-all shadow-xs">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-mono text-xs font-bold text-gray-800">#{order.id?.slice(-8)}</span>
+                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                            order.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                            order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                            'bg-blue-100 text-blue-700'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-gray-600">
+                          <span>{order.items?.length || 1} item(s)</span>
+                          <span className="font-bold text-gray-900">₹{order.total?.toLocaleString('en-IN')}</span>
+                        </div>
+                        {order.placedAt && (
+                          <p className="text-[10px] text-gray-400 mt-1">
+                            {new Date(order.placedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-gray-100 flex justify-end bg-gray-50/50">
+              <button onClick={() => setSelectedUser(null)} className="btn-secondary text-xs py-2 px-5 font-bold">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

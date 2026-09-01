@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ReactECharts from 'echarts-for-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import Icon from '../../components/icons/Icons';
 import { products as defaultProducts } from '../../data/products';
@@ -16,6 +17,8 @@ export default function AdminProducts() {
   const [form, setForm] = useState(emptyForm);
   const [search, setSearch] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [deleteModalProduct, setDeleteModalProduct] = useState(null);
+  const [previewImageProduct, setPreviewImageProduct] = useState(null);
   const [mobileNav, setMobileNav] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -127,6 +130,7 @@ export default function AdminProducts() {
     });
     setEditId(product.id);
     setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
@@ -145,6 +149,7 @@ export default function AdminProducts() {
       toast.success('Product deleted (Local Fallback)');
     }
     setDeleteConfirm(null);
+    setDeleteModalProduct(null);
   };
 
   const toggleStock = async (id) => {
@@ -299,18 +304,125 @@ export default function AdminProducts() {
             {search && <button onClick={() => setSearch('')} className="text-gray-400 hover:text-gray-600"><Icon name="X" size={14} /></button>}
           </div>
 
-          {/* Stats row */}
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            {[
-              { label: 'Total Products', value: products.length, color: 'text-primary-600' },
-              { label: 'In Stock', value: products.filter(p => p.inStock).length, color: 'text-green-600' },
-              { label: 'Out of Stock', value: products.filter(p => !p.inStock).length, color: 'text-red-600' },
-            ].map(s => (
-              <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-3 text-center">
-                <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
-                <p className="text-xs text-gray-500">{s.label}</p>
+          {/* Stats & Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            {/* Stat Cards */}
+            <div className="flex flex-col gap-3">
+              {[
+                { label: 'Total Products', value: products.length, color: 'text-primary-600', icon: 'Package', bg: 'bg-primary-50' },
+                { label: 'In Stock Products', value: products.filter(p => p.inStock).length, color: 'text-green-600', icon: 'CheckCircle', bg: 'bg-green-50' },
+                { label: 'Out of Stock', value: products.filter(p => !p.inStock).length, color: 'text-red-600', icon: 'AlertCircle', bg: 'bg-red-50' },
+              ].map(s => (
+                <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl font-black text-gray-900">{s.value}</p>
+                    <p className="text-xs text-gray-500 font-medium">{s.label}</p>
+                  </div>
+                  <div className={`w-10 h-10 rounded-xl ${s.bg} ${s.color} flex items-center justify-center`}>
+                    <Icon name={s.icon} size={20} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ECharts - Category Breakdown Doughnut */}
+            <div className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col justify-between">
+              <h3 className="font-bold text-gray-800 text-sm flex items-center gap-2 mb-1">
+                <Icon name="PieChart" size={16} className="text-primary-600" /> Category Breakdown
+              </h3>
+              <div className="h-48 w-full">
+                <ReactECharts
+                  option={{
+                    tooltip: {
+                      trigger: 'item',
+                      formatter: '{b}: <b>{c} products</b> ({d}%)',
+                      backgroundColor: '#1f2937',
+                      borderColor: '#374151',
+                      textStyle: { color: '#fff', fontSize: 11, fontFamily: 'Outfit' }
+                    },
+                    legend: {
+                      bottom: '0%',
+                      left: 'center',
+                      itemWidth: 8,
+                      itemHeight: 8,
+                      textStyle: { fontSize: 10, color: '#6b7280', fontFamily: 'Outfit' }
+                    },
+                    series: [
+                      {
+                        name: 'Category',
+                        type: 'pie',
+                        radius: ['45%', '72%'],
+                        center: ['50%', '40%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 2 },
+                        label: {
+                          show: true,
+                          position: 'center',
+                          formatter: () => `{total|${products.length}}\n{label|Products}`,
+                          rich: {
+                            total: { fontSize: 18, fontWeight: 'bold', color: '#111827', fontFamily: 'Outfit' },
+                            label: { fontSize: 10, color: '#6b7280', fontFamily: 'Outfit' }
+                          }
+                        },
+                        data: (() => {
+                          const catMap = {};
+                          products.forEach(p => {
+                            const name = p.subcategory ? p.subcategory.replace(/-/g, ' ') : 'Other';
+                            catMap[name] = (catMap[name] || 0) + 1;
+                          });
+                          return Object.entries(catMap).map(([name, value]) => ({ name, value }));
+                        })()
+                      }
+                    ]
+                  }}
+                  style={{ height: '100%', width: '100%' }}
+                />
               </div>
-            ))}
+            </div>
+
+            {/* ECharts - Stock vs Pricing Chart */}
+            <div className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col justify-between">
+              <h3 className="font-bold text-gray-800 text-sm flex items-center gap-2 mb-1">
+                <Icon name="BarChart" size={16} className="text-primary-600" /> Stock Status Distribution
+              </h3>
+              <div className="h-48 w-full">
+                <ReactECharts
+                  option={{
+                    tooltip: {
+                      trigger: 'axis',
+                      axisPointer: { type: 'shadow' },
+                      backgroundColor: '#1f2937',
+                      borderColor: '#374151',
+                      textStyle: { color: '#fff', fontSize: 11, fontFamily: 'Outfit' }
+                    },
+                    grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+                    xAxis: {
+                      type: 'category',
+                      data: ['In Stock', 'Out of Stock'],
+                      axisLine: { lineStyle: { color: '#e5e7eb' } },
+                      axisLabel: { color: '#6b7280', fontFamily: 'Outfit' }
+                    },
+                    yAxis: {
+                      type: 'value',
+                      axisLabel: { color: '#6b7280', fontFamily: 'Outfit' },
+                      splitLine: { lineStyle: { color: '#f3f4f6' } }
+                    },
+                    series: [
+                      {
+                        name: 'Product Count',
+                        type: 'bar',
+                        barWidth: '40%',
+                        data: [
+                          { value: products.filter(p => p.inStock).length, itemStyle: { color: '#22c55e', borderRadius: [6, 6, 0, 0] } },
+                          { value: products.filter(p => !p.inStock).length, itemStyle: { color: '#ef4444', borderRadius: [6, 6, 0, 0] } }
+                        ]
+                      }
+                    ]
+                  }}
+                  style={{ height: '100%', width: '100%' }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Products table */}
@@ -318,7 +430,7 @@ export default function AdminProducts() {
             <TableSkeleton rows={8} cols={6} />
           ) : (
             <>
-              <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -333,11 +445,20 @@ export default function AdminProducts() {
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {paginatedProducts.map((product) => (
-                        <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={product.id} className="hover:bg-gray-50/80 transition-colors">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
-                              <img src={product.image} alt={product.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 bg-gray-100" />
-                              <p className="font-medium text-gray-800 text-xs line-clamp-2 max-w-[160px]">{product.name}</p>
+                              <div
+                                onClick={() => setPreviewImageProduct(product)}
+                                className="relative group cursor-pointer w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-200"
+                                title="Click to view image preview"
+                              >
+                                <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                  <Icon name="Eye" size={14} />
+                                </div>
+                              </div>
+                              <p className="font-medium text-gray-800 text-xs line-clamp-2 max-w-[180px]">{product.name}</p>
                             </div>
                           </td>
                           <td className="px-4 py-3 hidden sm:table-cell">
@@ -360,19 +481,15 @@ export default function AdminProducts() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-1">
-                              <button onClick={() => handleEdit(product)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                              <button onClick={() => setPreviewImageProduct(product)} className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Preview Image">
+                                <Icon name="Eye" size={14} />
+                              </button>
+                              <button onClick={() => handleEdit(product)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Product">
                                 <Icon name="Edit" size={14} />
                               </button>
-                              {deleteConfirm === product.id ? (
-                                <div className="flex items-center gap-1">
-                                  <button onClick={() => handleDelete(product.id)} className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded hover:bg-red-100">Yes</button>
-                                  <button onClick={() => setDeleteConfirm(null)} className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded hover:bg-gray-200">No</button>
-                                </div>
-                              ) : (
-                                <button onClick={() => setDeleteConfirm(product.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                  <Icon name="Trash" size={14} />
-                                </button>
-                              )}
+                              <button onClick={() => setDeleteModalProduct(product)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Product">
+                                <Icon name="Trash" size={14} />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -397,6 +514,76 @@ export default function AdminProducts() {
           )}
         </div>
       </div>
+
+      {/* Image Preview Lightbox Modal */}
+      {previewImageProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in" onClick={() => setPreviewImageProduct(null)}>
+          <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl transition-all transform scale-100" onClick={e => e.stopPropagation()}>
+            <div className="relative bg-gray-950 p-4 flex items-center justify-center min-h-[280px]">
+              <img src={previewImageProduct.image} alt={previewImageProduct.name} className="max-h-[380px] w-auto object-contain rounded-lg shadow-md" />
+              <button onClick={() => setPreviewImageProduct(null)} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-600 transition-colors">
+                <Icon name="X" size={18} />
+              </button>
+            </div>
+            <div className="p-5">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <h3 className="font-bold text-gray-900 text-base">{previewImageProduct.name}</h3>
+                <span className="text-lg font-black text-primary-600">₹{previewImageProduct.price?.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-3">
+                <span className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-md capitalize font-medium">{previewImageProduct.subcategory?.replace(/-/g, ' ')}</span>
+                {previewImageProduct.badge && (
+                  <span className="bg-orange-50 text-orange-600 font-bold px-2.5 py-1 rounded-md">{previewImageProduct.badge}</span>
+                )}
+                <span className={`px-2.5 py-1 rounded-md font-bold ${previewImageProduct.inStock ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                  {previewImageProduct.inStock ? 'In Stock' : 'Out of Stock'}
+                </span>
+              </div>
+              {previewImageProduct.description && (
+                <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-100 mb-4">{previewImageProduct.description}</p>
+              )}
+              <div className="flex justify-end gap-2">
+                <button onClick={() => { handleEdit(previewImageProduct); setPreviewImageProduct(null); }} className="btn-primary text-xs py-2 px-4">
+                  <Icon name="Edit" size={14} /> Edit Product
+                </button>
+                <button onClick={() => setPreviewImageProduct(null)} className="btn-secondary text-xs py-2 px-4">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Beautiful Delete Confirmation Modal */}
+      {deleteModalProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setDeleteModalProduct(null)}>
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 transition-all text-center" onClick={e => e.stopPropagation()}>
+            <div className="w-14 h-14 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4 border border-red-100 shadow-sm">
+              <Icon name="Trash" size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Delete Product?</h3>
+            <p className="text-xs text-gray-500 mb-4">
+              Are you sure you want to delete <span className="font-semibold text-gray-800">"{deleteModalProduct.name}"</span>? This action cannot be undone.
+            </p>
+            {deleteModalProduct.image && (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl mb-5 text-left border border-gray-100">
+                <img src={deleteModalProduct.image} alt={deleteModalProduct.name} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-gray-800 truncate">{deleteModalProduct.name}</p>
+                  <p className="text-xs text-gray-400">₹{deleteModalProduct.price?.toLocaleString('en-IN')}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center justify-center gap-3">
+              <button onClick={() => setDeleteModalProduct(null)} className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors">
+                Cancel
+              </button>
+              <button onClick={() => handleDelete(deleteModalProduct.id)} className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-md shadow-red-200 flex items-center justify-center gap-1.5">
+                <Icon name="Trash" size={14} /> Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

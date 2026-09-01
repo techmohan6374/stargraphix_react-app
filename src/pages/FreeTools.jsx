@@ -100,8 +100,8 @@ export default function FreeTools() {
     },
     {
       id: 'remove-bg',
-      name: 'Remove Background AI',
-      desc: 'Isolate subjects and erase image backdrops with smart chroma-keying and manual precision brush overlays.',
+      name: 'Remove Background',
+      desc: 'Isolate subjects and erase image backdrops using official Remove.bg API and precision brush tools.',
       icon: 'Camera',
       badge: 'New',
       gradient: 'from-rose-500 to-red-600',
@@ -135,10 +135,10 @@ export default function FreeTools() {
               <Icon name="Cpu" size={14} className="text-indigo-600 animate-pulse" /> Free Creative Hub
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-brand-dark mb-3">
-              Free <span className="text-gradient">AI & Creative</span> Tools
+              Tools
             </h1>
             <p className="text-gray-500 text-sm md:text-base">
-              Click any tool card below to open its dedicated workspace. Fast, free generators built for Salem design & coding teams.
+              Click any tool card below to open its dedicated workspace. Fast, free generators built for design & coding teams.
             </p>
           </div>
 

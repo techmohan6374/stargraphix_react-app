@@ -22,11 +22,11 @@ export const TOOLS_LIST = [
   { id: 'barcode', name: 'Barcode Generator', icon: 'Barcode' },
   { id: 'gradient', name: 'Background Gradient', icon: 'Gradient' },
   { id: 'passport', name: 'Passport Photo Maker', icon: 'Camera' },
-  { id: 'palette', name: 'AI Color Palette', icon: 'Layers' },
+  { id: 'palette', name: 'Color Palette', icon: 'Layers' },
   { id: 'ratio', name: 'Aspect Ratio Calculator', icon: 'Grid' },
-  { id: 'copywriter', name: 'AI Brand Copywriter', icon: 'FileText' },
+  { id: 'copywriter', name: 'Brand Copywriter', icon: 'FileText' },
   { id: 'base64', name: 'Image to Base64 Encoder', icon: 'Image' },
-  { id: 'remove-bg', name: 'Remove Background AI', icon: 'Camera' },
+  { id: 'remove-bg', name: 'Remove Background', icon: 'Camera' },
   { id: 'flipbook', name: '3D PDF Flipbook', icon: 'Layers' },
   { id: 'invoice', name: 'Invoice Maker', icon: 'FileText' },
 ];
@@ -39,7 +39,7 @@ export default function ToolWorkspace() {
   // Enforce Google Auth login check
   useEffect(() => {
     if (!isLoggedIn || !user) {
-      toast.error('Please sign in with Google Auth to access AI & Creative Tools!', {
+      toast.error('Please sign in with Google Auth to access Tools!', {
         duration: 4000,
       });
       navigate('/userlogin');
@@ -102,7 +102,7 @@ export default function ToolWorkspace() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400 font-semibold hidden sm:inline">Active AI Tool:</span>
+          <span className="text-xs text-gray-400 font-semibold hidden sm:inline">Active Tool:</span>
           <span className="text-xs sm:text-sm font-bold text-primary-700 bg-primary-50 px-3 py-1 rounded-lg border border-primary-100 flex items-center gap-1.5">
             <Icon name={tool?.icon || 'Cpu'} size={14} className="text-primary-600" />
             {tool?.name || 'Creative Tool'}

@@ -20,11 +20,13 @@ export default function RemoveBackgroundAI() {
   const isDrawing = useRef(false);
   const imageObj = useRef(null);
   const selectedColor = useRef({ r: 255, g: 255, b: 255 });
+  const rawFileRef = useRef(null);
 
   // Handle image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    rawFileRef.current = file;
     loadImage(file);
   };
 
@@ -36,6 +38,7 @@ export default function RemoveBackgroundAI() {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
+      rawFileRef.current = file;
       loadImage(file);
     }
   };
@@ -59,25 +62,31 @@ export default function RemoveBackgroundAI() {
   const setupCanvases = (img) => {
     // Setup original canvas (hidden)
     const origCanvas = originalCanvasRef.current;
-    origCanvas.width = img.width;
-    origCanvas.height = img.height;
-    const origCtx = origCanvas.getContext('2d');
-    origCtx.drawImage(img, 0, 0);
+    if (origCanvas) {
+      origCanvas.width = img.width;
+      origCanvas.height = img.height;
+      const origCtx = origCanvas.getContext('2d');
+      origCtx.drawImage(img, 0, 0);
+    }
 
     // Setup mask canvas (stores transparency mask)
     const maskCanvas = maskCanvasRef.current;
-    maskCanvas.width = img.width;
-    maskCanvas.height = img.height;
-    const maskCtx = maskCanvas.getContext('2d');
-    
-    // Initialize mask to fully opaque white
-    maskCtx.fillStyle = '#ffffff';
-    maskCtx.fillRect(0, 0, img.width, img.height);
+    if (maskCanvas) {
+      maskCanvas.width = img.width;
+      maskCanvas.height = img.height;
+      const maskCtx = maskCanvas.getContext('2d');
+      
+      // Initialize mask to fully opaque white
+      maskCtx.fillStyle = '#ffffff';
+      maskCtx.fillRect(0, 0, img.width, img.height);
+    }
 
     // Setup visible preview canvas
     const canvas = canvasRef.current;
-    canvas.width = img.width;
-    canvas.height = img.height;
+    if (canvas) {
+      canvas.width = img.width;
+      canvas.height = img.height;
+    }
 
     setImage(img.src);
     renderPreview();
@@ -86,7 +95,7 @@ export default function RemoveBackgroundAI() {
   // Render original image + mask to preview canvas
   const renderPreview = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !imageObj.current || !maskCanvasRef.current) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -99,7 +108,6 @@ export default function RemoveBackgroundAI() {
     
     // Apply feathering if set
     if (feather > 0) {
-      // Use an offscreen canvas to blur the mask slightly for smooth edges
       const tempCanvas = document.createElement('canvas');
       tempCanvas.width = canvas.width;
       tempCanvas.height = canvas.height;
@@ -112,14 +120,85 @@ export default function RemoveBackgroundAI() {
     }
   };
 
-  // Smart Auto-Clear background simulation using dominant edge colors
-  const runAutoBackgroundRemove = () => {
+  // Remove background using official remove.bg API with fallback
+  const runAutoBackgroundRemove = async () => {
     if (!imageObj.current) return;
     setLoading(true);
-    
+
+    try {
+      let fileToSend = rawFileRef.current;
+      if (!fileToSend && image) {
+        const resBlob = await fetch(image);
+        fileToSend = await resBlob.blob();
+      }
+
+      if (fileToSend) {
+        const formData = new FormData();
+        formData.append('image_file', fileToSend);
+        formData.append('size', 'auto');
+
+        const res = await fetch('https://api.remove.bg/v1.0/removebg', {
+          method: 'POST',
+          headers: {
+            'X-API-Key': 'vMoRkTseQhpsCVF4opd4U2mN'
+          },
+          body: formData
+        });
+
+        if (res.ok) {
+          const blob = await res.blob();
+          const resultUrl = URL.createObjectURL(blob);
+          const resultImg = new Image();
+          resultImg.onload = () => {
+            imageObj.current = resultImg;
+            setupCanvases(resultImg);
+
+            // Update mask to match transparency of remove.bg output
+            const maskCanvas = maskCanvasRef.current;
+            const maskCtx = maskCanvas.getContext('2d');
+            const maskData = maskCtx.getImageData(0, 0, resultImg.width, resultImg.height);
+            
+            const origCanvas = originalCanvasRef.current;
+            const origCtx = origCanvas.getContext('2d');
+            const origData = origCtx.getImageData(0, 0, resultImg.width, resultImg.height);
+
+            for (let i = 0; i < origData.data.length; i += 4) {
+              const alpha = origData.data[i + 3];
+              maskData.data[i] = alpha;
+              maskData.data[i + 1] = alpha;
+              maskData.data[i + 2] = alpha;
+              maskData.data[i + 3] = alpha;
+            }
+            maskCtx.putImageData(maskData, 0, 0);
+            renderPreview();
+
+            setLoading(false);
+            setHasProcessed(true);
+            toast.success('Background removed via Remove.bg API!');
+          };
+          resultImg.src = resultUrl;
+          return;
+        } else {
+          const errJson = await res.json().catch(() => ({}));
+          console.warn("Remove.bg API response error:", res.status, errJson);
+          if (errJson.errors && errJson.errors[0]?.title) {
+            toast.error(`Remove.bg API: ${errJson.errors[0].title}. Using local fallback.`);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Remove.bg API network error, falling back to local method:", err);
+    }
+
+    runLocalAutoBackgroundRemove();
+  };
+
+  const runLocalAutoBackgroundRemove = () => {
     setTimeout(() => {
       const origCanvas = originalCanvasRef.current;
       const maskCanvas = maskCanvasRef.current;
+      if (!origCanvas || !maskCanvas) { setLoading(false); return; }
+
       const w = origCanvas.width;
       const h = origCanvas.height;
 
@@ -129,7 +208,6 @@ export default function RemoveBackgroundAI() {
       const imgData = origCtx.getImageData(0, 0, w, h);
       const data = imgData.data;
 
-      // Sample background colors from 4 corners
       const corners = [
         getPixelColor(data, 0, 0, w),
         getPixelColor(data, w - 1, 0, w),
@@ -140,7 +218,6 @@ export default function RemoveBackgroundAI() {
       const maskData = maskCtx.getImageData(0, 0, w, h);
       const mData = maskData.data;
 
-      // Simple threshold distance checking
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
         const g = data[i + 1];
@@ -153,7 +230,6 @@ export default function RemoveBackgroundAI() {
             Math.pow(g - corner.g, 2) +
             Math.pow(b - corner.b, 2)
           );
-          // Tolerance scale
           if (dist < tolerance * 2.5) {
             match = true;
             break;
@@ -161,10 +237,10 @@ export default function RemoveBackgroundAI() {
         }
 
         if (match) {
-          mData[i] = 0;     // R
-          mData[i + 1] = 0; // G
-          mData[i + 2] = 0; // B
-          mData[i + 3] = 0; // A (transparent)
+          mData[i] = 0;
+          mData[i + 1] = 0;
+          mData[i + 2] = 0;
+          mData[i + 3] = 0;
         } else {
           mData[i] = 255;
           mData[i + 1] = 255;
@@ -177,8 +253,8 @@ export default function RemoveBackgroundAI() {
       renderPreview();
       setLoading(false);
       setHasProcessed(true);
-      toast.success('Background auto-removed!');
-    }, 500);
+      toast.success('Background auto-removed (Local Fallback)!');
+    }, 300);
   };
 
   const getPixelColor = (data, x, y, width) => {
