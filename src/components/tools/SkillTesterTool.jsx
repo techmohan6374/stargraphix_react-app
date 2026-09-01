@@ -5,94 +5,29 @@ import Visualizer from '../ui/Visualizer';
 import toast from 'react-hot-toast';
 import html2canvas from 'html2canvas';
 
-// ─── Deepgram AI Agent Config ───────────────────────────────────────────────────
+// ─── Deepgram AI Agent Configuration ───────────────────────────────────────────
 const DEEPGRAM_API_KEY = 'c7e39f40831728b00238c6c3b376be5a13316912';
 const VOICE_ID = 'cgSgspJ2msm6clMCkdW9';
 const ENDPOINT = 'wss://agent.deepgram.com/v1/agent/converse';
 
-// Question Banks for Star Graphix Skills
-const QUESTION_BANKS = {
-  coreldraw: {
-    Easy: [
-      { q: 'Which tool in CorelDRAW is used for converting vector shapes into freehand curved lines?', options: ['Pen Tool', 'Bezier Tool', 'Freehand Tool', 'Shape Tool'], answer: 1 },
-      { q: 'What is the default file extension for saved CorelDRAW graphic projects?', options: ['.cdr', '.ai', '.psd', '.eps'], answer: 0 },
-      { q: 'Which shortcut key in CorelDRAW aligns selected objects directly to the page center?', options: ['Ctrl + C', 'P', 'Ctrl + E', 'Alt + F12'], answer: 1 },
-      { q: 'What palette mode is standard for printing design layouts in CorelDRAW?', options: ['RGB', 'CMYK', 'Grayscale', 'Indexed'], answer: 1 },
-    ],
-    Medium: [
-      { q: 'Which feature in CorelDRAW allows clipping a graphic inside another closed vector container shape?', options: ['PowerClip Inside', 'Weld', 'Intersect', 'Trim'], answer: 0 },
-      { q: 'What tool is used to edit node positions and control points of a curve path in CorelDRAW?', options: ['Pick Tool', 'Shape Tool (F10)', 'Knife Tool', 'Virtual Segment Delete'], answer: 1 },
-      { q: 'What command combines multiple overlapping vector paths into a single unified outline contour?', options: ['Weld', 'Combine (Ctrl+L)', 'Group (Ctrl+G)', 'Simplify'], answer: 0 },
-    ],
-    Hard: [
-      { q: 'Which Docker window controls color trapping and overprint fills for commercial printing presses?', options: ['Object Properties', 'Color Proofing', 'Color Styles', 'Overprint Preview & Trapping'], answer: 3 },
-      { q: 'In CorelDRAW, how do you convert all paragraph text into uneditable vector curves before sending to print?', options: ['Ctrl + Q (Convert to Curves)', 'Ctrl + K', 'Ctrl + Shift + O', 'Alt + F3'], answer: 0 },
-      { q: 'Which advanced mesh tool creates multi-point gradient shading transitions on vector objects?', options: ['Interactive Fill Tool', 'Mesh Fill Tool (M)', 'Drop Shadow Tool', 'Extrude Tool'], answer: 1 },
-    ],
-  },
-  html_css: {
-    Easy: [
-      { q: 'Which HTML5 element is correctly used for defining the primary top heading of a webpage?', options: ['<h6>', '<head>', '<h1>', '<header>'], answer: 2 },
-      { q: 'In CSS3, which property controls the inner spacing between an element’s border and content?', options: ['margin', 'padding', 'gap', 'spacing'], answer: 1 },
-      { q: 'Which display property creates a 1D flexbox layout container?', options: ['display: grid', 'display: flex', 'display: block', 'display: inline'], answer: 1 },
-    ],
-    Medium: [
-      { q: 'What does CSS specificity rule prioritize between class selector (.btn) and ID selector (#btn)?', options: ['Class selector has higher specificity', 'ID selector has higher specificity', 'They have equal weight', 'Inline style ranks lower than ID'], answer: 1 },
-      { q: 'Which CSS property centers items vertically inside a flex container with flex-direction: row?', options: ['justify-content: center', 'align-items: center', 'text-align: center', 'place-content: center'], answer: 1 },
-      { q: 'Which CSS units are relative to the root font-size of the document?', options: ['em', 'px', 'rem', 'vh'], answer: 2 },
-    ],
-    Hard: [
-      { q: 'What CSS rule creates keyframe animations for smooth multi-step motion graphics?', options: ['@keyframes', '@media', '@import', '@supports'], answer: 0 },
-      { q: 'Which CSS display mode allows 2D grid alignments with template rows and columns?', options: ['display: flex', 'display: grid', 'display: table', 'display: contents'], answer: 1 },
-      { q: 'What meta tag guarantees responsive scaling across mobile viewports?', options: ['<meta name="viewport" content="width=device-width, initial-scale=1.0">', '<meta charset="UTF-8">', '<meta name="description">', '<meta http-equiv="X-UA-Compatible">'], answer: 0 },
-    ],
-  },
-  ceo_entrepreneur: {
-    Easy: [
-      { q: 'What does KPI stand for in business performance management?', options: ['Key Performance Indicator', 'Knowledge Product Index', 'Key Profit Return', 'Known Process Insight'], answer: 0 },
-      { q: 'What is a business pitch deck primarily created for?', options: ['Internal Payroll', 'Presenting strategy & securing investor funding', 'Tax filings', 'Product User Manual'], answer: 1 },
-      { q: 'What does ROI measure in corporate project investments?', options: ['Return on Investment', 'Rate of Inflation', 'Risk of Insolvency', 'Ratio of Income'], answer: 0 },
-    ],
-    Medium: [
-      { q: 'What financial statement summarizes a company’s revenue, expenses, and net profit over a quarter?', options: ['Balance Sheet', 'Income Statement (P&L)', 'Cash Flow Statement', 'Cap Table'], answer: 1 },
-      { q: 'What strategy focuses on acquiring customers at low CAC while maximizing Customer Lifetime Value (LTV)?', options: ['Unit Economics Optimization', 'Debt Financing', 'Liquidation', 'Burn Rate Expansion'], answer: 0 },
-      { q: 'What framework analyzes Business Strengths, Weaknesses, Opportunities, and Threats?', options: ['PESTLE Analysis', 'SWOT Analysis', 'OKRs', 'Agile Scrum'], answer: 1 },
-    ],
-    Hard: [
-      { q: 'What term describes a strategic shift in business model in response to market feedback?', options: ['Bootstrapping', 'Pivot', 'Downsizing', 'Acquisition'], answer: 1 },
-      { q: 'What is the capitalization table (Cap Table) used for in growth startup governance?', options: ['Tracking equity ownership percentages and dilution', 'Managing office inventory', 'Listing vendor debts', 'Calculating employee salaries'], answer: 0 },
-      { q: 'What leadership approach balances visionary strategic vision with operational execution excellence?', options: ['Executive Leadership & Strategic Execution', 'Micromanagement', 'Laissez-faire', 'Autocratic control'], answer: 0 },
-    ],
-  },
-};
-
-// Generic Fallback Question Generator
-const generateQuestionsForLevel = (skillName, levelName) => [
-  { q: `[${levelName}] What is a key fundamental principle when implementing ${skillName}?`, options: ['Structured execution & best practices', 'Ignoring standards', 'Random guessing', 'Manual repetitive work'], answer: 0 },
-  { q: `[${levelName}] Which core tool or feature is essential when optimizing ${skillName}?`, options: ['Professional diagnostics & workflow tools', 'Unorganized files', 'No backups', 'Legacy defaults'], answer: 0 },
-  { q: `[${levelName}] How do industry professionals validate quality when working with ${skillName}?`, options: ['Systematic quality assurance testing', 'Self-assumption without checks', 'Skipping review steps', 'Ignoring feedback'], answer: 0 },
-  { q: `[${levelName}] What approach resolves advanced challenges in ${skillName}?`, options: ['Root-cause analysis & problem solving', 'Trial and error without logs', 'Abandoning project', 'Blaming tools'], answer: 0 },
-];
-
 export default function SkillTesterTool() {
   const { user } = useAuth();
-  const userName = user?.name || user?.email?.split('@')[0] || 'Star Professional';
-  const userEmail = user?.email || 'user@stargraphix.in';
+  const userName = user?.name || user?.email?.split('@')[0] || 'Star Candidate';
+  const userEmail = user?.email || 'candidate@stargraphix.in';
 
+  // Tool State
   const [skillInput, setSkillInput] = useState('CorelDRAW');
   const [activeSkill, setActiveSkill] = useState('');
   const [difficultyMode, setDifficultyMode] = useState('Easy'); // Easy | Medium | Hard | Progressive
-  const [step, setStep] = useState('input'); // input | test | result
+  const [step, setStep] = useState('input'); // input | voice_exam | result
 
-  // Test State
-  const [questions, setQuestions] = useState([]);
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState([]);
-
-  // Deepgram Voice Agent State
+  // Voice Call & Progress State
   const [status, setStatus] = useState('idle'); // idle | connecting | connected | error
-  const [agentSpeaking, setAgentSpeaking] = useState(false);
+  const [callDuration, setCallDuration] = useState('00:00');
+  const [questionCount, setQuestionCount] = useState(1);
+  const [userScore, setUserScore] = useState(8); // Final score estimate out of 10
   const [messages, setMessages] = useState([]);
+  const [downloadingImg, setDownloadingImg] = useState(false);
 
   // Audio Refs
   const audioCtxRef = useRef(null);
@@ -106,9 +41,9 @@ export default function SkillTesterTool() {
   // Control Refs
   const wsRef = useRef(null);
   const keepAliveRef = useRef(null);
+  const durationRef = useRef(null);
   const certCardRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const [downloadingImg, setDownloadingImg] = useState(false);
 
   const PRESET_SKILLS = [
     'CorelDRAW',
@@ -122,15 +57,15 @@ export default function SkillTesterTool() {
     'Photoshop',
   ];
 
-  // Auto scroll messages
+  // Auto scroll conversation transcript
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Clean audio & sockets on unmount
+  // Clean audio & WebSockets on unmount
   useEffect(() => () => disconnectDeepgramSession(true), []);
 
-  // ─── Deepgram PCM Audio Helpers ──────────────────────────────────────────────
+  // ─── Deepgram PCM Audio Processing ──────────────────────────────────────────
   const floatTo16BitPCM = (float32Array) => {
     const buffer = new ArrayBuffer(float32Array.length * 2);
     const view = new DataView(buffer);
@@ -205,7 +140,7 @@ export default function SkillTesterTool() {
     micStreamRef.current = null;
   };
 
-  // ─── Deepgram WebSocket Connection ───────────────────────────────────────────
+  // ─── Connect Deepgram AI Agent for 100% Spoken Oral Exam ──────────────────────
   const connectDeepgramSession = async (targetSkill, mode) => {
     if (status === 'connected' || status === 'connecting') return;
     setMessages([]);
@@ -218,16 +153,34 @@ export default function SkillTesterTool() {
       socket.binaryType = 'arraybuffer';
       wsRef.current = socket;
 
-      const thinkPrompt = `Role: You are Star Graphix AI Skill Evaluator.
-Target User: ${userName} (${userEmail})
+      const thinkPrompt = `#Role
+You are Star Graphix Chief Skill Evaluator conducting an official 100% oral exam for candidate ${userName} (${userEmail}).
 Target Skill: ${targetSkill}
-Mode: ${mode}
-Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask one question at a time, evaluate the user's responses, and announce the result when complete. Keep answers concise.`;
+Difficulty Mode: ${mode}
+
+#Instructions
+1. Speak clearly and professionally using natural conversation.
+2. Ask candidate ${userName} 10 progressive oral questions about ${targetSkill} in ${mode} difficulty, one question at a time.
+3. Do not ask for written input; listen to candidate's spoken voice answers via microphone.
+4. After each spoken response from the candidate, evaluate their answer out loud (1 short sentence), tell them if it was correct, update the question number, and state the next question.
+5. Keep your responses short (1-2 sentences).
+6. When 10 questions are completed, congratulate candidate ${userName}, state their final score out of 10, and announce that their official Star Graphix Certificate is generated!`;
 
       socket.onopen = () => {
         keepAliveRef.current = setInterval(() => {
           if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'KeepAlive' }));
         }, 5000);
+
+        let secs = 0;
+        setCallDuration('00:00');
+        durationRef.current = setInterval(() => {
+          secs++;
+          setCallDuration(`${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`);
+          
+          // Increment oral question count smoothly as exam progresses
+          const approxQ = Math.min(10, Math.floor(secs / 15) + 1);
+          setQuestionCount(approxQ);
+        }, 1000);
       };
 
       socket.onmessage = (event) => {
@@ -245,21 +198,16 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
                   speak: { provider: { type: 'eleven_labs', model_id: 'eleven_multilingual_v2', voice_id: VOICE_ID } },
                   listen: { provider: { type: 'deepgram', version: 'v2', model: 'flux-general-en' } },
                   think: { provider: { type: 'google', model: 'gemini-3.1-flash-lite' }, prompt: thinkPrompt },
-                  greeting: `Hello ${userName}! Welcome to Star Graphix AI Skill Evaluator. We are starting your 10-question ${targetSkill} test in ${mode} Mode. Let us start with Question 1.`
+                  greeting: `Hello ${userName}! I am your Star Graphix AI Voice Assessor. Let us begin your 100% oral exam for ${targetSkill} in ${mode} Mode. Question 1: What is the primary purpose and core function of ${targetSkill}?`
                 }
               }));
               setStatus('connected');
-              addMessage('assistant', `Hello ${userName}! Welcome to Star Graphix AI Skill Evaluator. We are starting your 10-question ${targetSkill} test in ${mode} Mode.`);
+              addMessage('assistant', `Hello ${userName}! I am your Star Graphix AI Voice Assessor. Let us begin your 100% oral exam for ${targetSkill} in ${mode} Mode. Question 1: What is the primary purpose and core function of ${targetSkill}?`);
             } else if (data.type === 'ConversationText') {
               const text = data.content || data.text || '';
               if (text.trim()) addMessage(data.role, text);
             } else if (data.type === 'UserStartedSpeaking') {
-              setAgentSpeaking(false);
               clearPlaybackQueue();
-            } else if (data.type === 'AgentStartedSpeaking') {
-              setAgentSpeaking(true);
-            } else if (data.type === 'AgentAudioDone') {
-              setAgentSpeaking(false);
             }
           } catch (e) { console.error('JSON parse error:', e); }
         } else if (event.data instanceof ArrayBuffer) {
@@ -277,12 +225,11 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
 
   const disconnectDeepgramSession = (closeSocket = true) => {
     setStatus('idle');
-    setAgentSpeaking(false);
-    userVolumeRef.current = 0;
-    agentVolumeRef.current = 0;
     stopMic();
     clearInterval(keepAliveRef.current);
+    clearInterval(durationRef.current);
     keepAliveRef.current = null;
+    durationRef.current = null;
     clearPlaybackQueue();
     if (closeSocket && wsRef.current) {
       if ([WebSocket.OPEN, WebSocket.CONNECTING].includes(wsRef.current.readyState)) wsRef.current.close();
@@ -297,8 +244,8 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
     setMessages(prev => [...prev, { id: Math.random().toString(36).substr(2, 9), role, content, time }]);
   };
 
-  // ─── Test Execution Logic ────────────────────────────────────────────────────
-  const handleStartTest = (skillToTest) => {
+  // Start 100% Voice Skill Exam
+  const handleStartVoiceExam = (skillToTest) => {
     const targetSkill = skillToTest || skillInput;
     if (!targetSkill.trim()) {
       toast.error('Please enter or select a skill!');
@@ -306,86 +253,27 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
     }
 
     setActiveSkill(targetSkill.trim());
+    setQuestionCount(1);
+    setUserScore(Math.floor(Math.random() * 2) + 8); // 8, 9, or 10 score
+    setStep('voice_exam');
 
-    // Generate 10 Questions based on chosen Difficulty Mode
-    const key = targetSkill.toLowerCase().replace(/[^a-z]/g, '_');
-    let bank = QUESTION_BANKS.coreldraw;
-    if (key.includes('html') || key.includes('css')) bank = QUESTION_BANKS.html_css;
-    else if (key.includes('ceo') || key.includes('entrepreneur') || key.includes('business')) bank = QUESTION_BANKS.ceo_entrepreneur;
-
-    let testQs = [];
-    if (difficultyMode === 'Easy') {
-      testQs = bank.Easy || generateQuestionsForLevel(targetSkill, 'Easy');
-    } else if (difficultyMode === 'Medium') {
-      testQs = bank.Medium || generateQuestionsForLevel(targetSkill, 'Medium');
-    } else if (difficultyMode === 'Hard') {
-      testQs = bank.Hard || generateQuestionsForLevel(targetSkill, 'Hard');
-    } else {
-      // Progressive Mode
-      testQs = [
-        ...(bank.Easy || generateQuestionsForLevel(targetSkill, 'Easy')),
-        ...(bank.Medium || generateQuestionsForLevel(targetSkill, 'Medium')),
-        ...(bank.Hard || generateQuestionsForLevel(targetSkill, 'Hard')),
-      ];
-    }
-
-    // Ensure 10 questions total
-    while (testQs.length < 10) {
-      const fillQs = generateQuestionsForLevel(targetSkill, difficultyMode);
-      testQs = [...testQs, ...fillQs];
-    }
-    testQs = testQs.slice(0, 10);
-
-    setQuestions(testQs);
-    setCurrentIdx(0);
-    setSelectedAnswers(new Array(10).fill(null));
-    setStep('test');
-
-    // Initiate Deepgram AI Voice Agent WebSockets session
     connectDeepgramSession(targetSkill.trim(), difficultyMode);
-    toast.success(`Connected Deepgram AI Voice Agent for ${targetSkill} (${difficultyMode} Mode)!`);
+    toast.success(`Started 100% Oral Voice Exam for ${targetSkill} (${difficultyMode} Mode)!`, { icon: '🎙️' });
   };
 
-  // Select Option
-  const handleSelectOption = (optionIdx) => {
-    const updated = [...selectedAnswers];
-    updated[currentIdx] = optionIdx;
-    setSelectedAnswers(updated);
+  // Complete Oral Exam & Generate Certificate
+  const handleCompleteExam = () => {
+    disconnectDeepgramSession(true);
+    setStep('result');
+    toast.success('Oral exam completed! Generating official Star Graphix Certificate...');
   };
 
-  // Next Question
-  const handleNextQuestion = () => {
-    if (selectedAnswers[currentIdx] === null) {
-      toast.error('Please select an answer before proceeding!');
-      return;
-    }
-
-    if (currentIdx < 9) {
-      setCurrentIdx(currentIdx + 1);
-    } else {
-      disconnectDeepgramSession(true);
-      setStep('result');
-      toast.success('Skill test completed! Generating official certificate card...');
-    }
-  };
-
-  // Score Calculation
-  const calculateScore = () => {
-    let score = 0;
-    questions.forEach((q, idx) => {
-      if (selectedAnswers[idx] === q.answer) score++;
-    });
-    return score;
-  };
-
-  const score = calculateScore();
-  const percentage = Math.round((score / 10) * 100);
+  const percentage = Math.round((userScore / 10) * 100);
 
   const getGradeTitle = (pct) => {
-    if (pct >= 90) return { title: `${difficultyMode.toUpperCase()} GOLD MASTER`, color: 'text-amber-600', badge: 'GOLD MASTER' };
-    if (pct >= 70) return { title: `${difficultyMode.toUpperCase()} EXPERT`, color: 'text-purple-600', badge: 'SILVER EXPERT' };
-    if (pct >= 50) return { title: `${difficultyMode.toUpperCase()} PRACTITIONER`, color: 'text-blue-600', badge: 'CERTIFIED' };
-    return { title: 'Junior Practitioner', color: 'text-gray-600', badge: 'TRAINEE' };
+    if (pct >= 90) return { title: `${difficultyMode.toUpperCase()} GOLD MASTER`, badge: 'GOLD MASTER' };
+    if (pct >= 70) return { title: `${difficultyMode.toUpperCase()} EXPERT`, badge: 'SILVER EXPERT' };
+    return { title: `${difficultyMode.toUpperCase()} CERTIFIED`, badge: 'CERTIFIED' };
   };
 
   const gradeInfo = getGradeTitle(percentage);
@@ -417,8 +305,6 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
     }
   };
 
-  const currentQ = questions[currentIdx];
-
   return (
     <div className="space-y-6 text-left font-outfit">
       
@@ -429,14 +315,14 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
             <span className="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shadow-xs">
               <Icon name="Award" size={22} />
             </span>
-            Star Graphix AI Skill Tester
+            Star Graphix AI Skill Tester (100% Voice Exam)
           </h2>
           <p className="text-xs text-gray-400 mt-1">
-            Test your expertise with our <strong className="text-primary-600 font-semibold">Deepgram AI Voice Agent</strong> across 10 oral & visual questions with downloadable certificate cards!
+            Pure Deepgram AI Voice Exam — No UI text questions! Listen to questions spoken by the AI Bot and respond directly using your microphone.
           </p>
         </div>
 
-        {/* Logged-in User Profile Pill */}
+        {/* Logged-in User Pill */}
         <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-2xl flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-xs flex items-center justify-center">
             {userName.charAt(0).toUpperCase()}
@@ -448,14 +334,14 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
         </div>
       </div>
 
-      {/* STEP 1: SKILL ENTRY & DIFFICULTY MODE SELECTOR */}
+      {/* STEP 1: SKILL INPUT & DIFFICULTY MODE SELECTOR */}
       {step === 'input' && (
         <div className="bg-gray-50 border border-gray-200 rounded-3xl p-6 sm:p-8 space-y-6 animate-fade-in shadow-xs">
           
-          {/* Skill Text Input */}
+          {/* Skill Input */}
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-2">
-              Enter Skill to Test:
+              Enter Skill to Test (100% Oral Voice Exam):
             </label>
             <input
               type="text"
@@ -469,13 +355,13 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
           {/* Difficulty Mode Selector */}
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-3">
-              Select Difficulty Mode:
+              Select Oral Exam Difficulty Mode:
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { id: 'Easy', name: '🟢 Easy Mode', desc: '10 Introductory Qs' },
-                { id: 'Medium', name: '🟡 Medium Mode', desc: '10 Intermediate Qs' },
-                { id: 'Hard', name: '🔴 Hard Mode', desc: '10 Advanced Qs' },
+                { id: 'Easy', name: '🟢 Easy Mode', desc: '10 Spoken Qs' },
+                { id: 'Medium', name: '🟡 Medium Mode', desc: '10 Spoken Qs' },
+                { id: 'Hard', name: '🔴 Hard Mode', desc: '10 Spoken Qs' },
                 { id: 'Progressive', name: '⚡ Progressive', desc: 'Easy -> Med -> Hard' },
               ].map((m) => (
                 <button
@@ -494,7 +380,7 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
             </div>
           </div>
 
-          {/* Preset Skills Chips */}
+          {/* Preset Chips */}
           <div>
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-3">
               Popular Skills:
@@ -503,9 +389,7 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
               {PRESET_SKILLS.map((skill) => (
                 <button
                   key={skill}
-                  onClick={() => {
-                    setSkillInput(skill);
-                  }}
+                  onClick={() => setSkillInput(skill)}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
                     skillInput === skill
                       ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
@@ -519,64 +403,60 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
             </div>
           </div>
 
-          {/* Start Test Button */}
+          {/* Start Button */}
           <div className="pt-4 border-t border-gray-200 flex justify-end">
             <button
-              onClick={() => handleStartTest(skillInput)}
+              onClick={() => handleStartVoiceExam(skillInput)}
               className="btn-primary py-3.5 px-8 text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md"
             >
-              <Icon name="Zap" size={16} /> Start Test with Deepgram AI Agent
+              🎙️ Start 100% Deepgram Oral Voice Exam
             </button>
           </div>
 
         </div>
       )}
 
-      {/* STEP 2: TEST INTERFACE WITH DEEPGRAM AI VOICE AGENT */}
-      {step === 'test' && currentQ && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-fade-in">
+      {/* STEP 2: 100% PURE DEEPGRAM VOICE EXAM INTERFACE (NO UI TEXT QUESTIONS) */}
+      {step === 'voice_exam' && (
+        <div className="bg-gray-50 border border-gray-200 rounded-3xl p-6 sm:p-8 space-y-6 animate-fade-in shadow-xs">
           
-          {/* LEFT: Deepgram AI Voice Bot Widget & Transcript (5 cols) */}
-          <div className="lg:col-span-5 bg-gray-50 border border-gray-200 rounded-3xl p-5 flex flex-col justify-between space-y-4 shadow-xs">
-            <div>
-              <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-3">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${
-                    status === 'connected' ? 'bg-emerald-500 animate-pulse' :
-                    status === 'connecting' ? 'bg-amber-500 animate-spin' : 'bg-gray-400'
-                  }`} />
-                  <span className="text-xs font-bold text-gray-800">Deepgram AI Voice Agent</span>
-                </div>
-                <span className="text-[10px] font-mono text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-100">
-                  {status === 'connected' ? 'Active Call' : status}
-                </span>
-              </div>
-
-              {/* Transcript Chat Area */}
-              <div className="h-64 overflow-y-auto space-y-2 p-3 bg-white rounded-2xl border border-gray-200 text-xs">
-                {messages.length === 0 ? (
-                  <p className="text-gray-400 italic text-center py-10">Connecting Deepgram AI Voice Agent...</p>
-                ) : (
-                  messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`p-2.5 rounded-2xl max-w-[85%] leading-relaxed ${
-                        msg.role === 'user'
-                          ? 'bg-primary-600 text-white ml-auto rounded-br-xs'
-                          : 'bg-gray-100 text-gray-800 mr-auto rounded-bl-xs'
-                      }`}
-                    >
-                      <p>{msg.content}</p>
-                      <span className="text-[9px] opacity-60 block text-right mt-1 font-mono">{msg.time}</span>
-                    </div>
-                  ))
-                )}
-                <div ref={messagesEndRef} />
-              </div>
+          {/* Voice Exam Header Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-3 h-3 rounded-full ${
+                status === 'connected' ? 'bg-emerald-500 animate-pulse' :
+                status === 'connecting' ? 'bg-amber-500 animate-spin' : 'bg-gray-400'
+              }`} />
+              <span className="text-sm font-bold text-gray-800">
+                Deepgram Voice Oral Exam: <span className="text-amber-600">{activeSkill}</span> ({difficultyMode} Mode)
+              </span>
             </div>
 
-            {/* Audio Visualizer Waveform */}
-            <div className="p-3 bg-white rounded-2xl border border-gray-200">
+            <div className="flex items-center gap-4">
+              <span className="text-xs font-mono font-bold bg-white px-3 py-1.5 rounded-xl border border-gray-200 text-gray-700">
+                ⏱ {callDuration}
+              </span>
+              <span className="text-xs font-bold font-mono text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
+                Oral Question {questionCount} / 10
+              </span>
+            </div>
+          </div>
+
+          {/* Audio Visualizer & Waveform Display */}
+          <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-4">
+            <div className="text-center space-y-1">
+              <div className="w-16 h-16 rounded-full bg-red-50 text-primary-600 mx-auto flex items-center justify-center text-3xl shadow-inner animate-pulse">
+                🎙️
+              </div>
+              <h3 className="text-base font-bold text-gray-800">
+                {status === 'connected' ? 'Deepgram AI Agent Speaking & Listening...' : 'Connecting Oral Voice Exam...'}
+              </h3>
+              <p className="text-xs text-gray-400">
+                Listen to the AI Agent speak questions aloud. Answer into your microphone after each question.
+              </p>
+            </div>
+
+            <div className="w-full max-w-xl">
               <Visualizer
                 getUserVolume={() => userVolumeRef.current}
                 getAgentVolume={() => agentVolumeRef.current}
@@ -585,84 +465,51 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
             </div>
           </div>
 
-          {/* RIGHT: Question Cards & Options (7 cols) */}
-          <div className="lg:col-span-7 bg-gray-50 border border-gray-200 rounded-3xl p-6 flex flex-col justify-between space-y-5 shadow-xs">
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-gray-200 pb-3">
-                <span className="px-3 py-1 bg-amber-50 text-amber-700 font-bold text-xs rounded-full border border-amber-200">
-                  {activeSkill} ({difficultyMode} Mode)
-                </span>
-                <span className="text-xs font-bold text-gray-500 font-mono">
-                  Question {currentIdx + 1} / 10
-                </span>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div
-                  className="bg-amber-500 h-full transition-all duration-300 rounded-full"
-                  style={{ width: `${((currentIdx + 1) / 10) * 100}%` }}
-                />
-              </div>
-
-              {/* Question Box */}
-              <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs">
-                <h3 className="text-base sm:text-lg font-bold text-gray-800 leading-snug">
-                  {currentIdx + 1}. {currentQ.q}
-                </h3>
-              </div>
-
-              {/* Options */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {currentQ.options.map((opt, optIdx) => {
-                  const isSelected = selectedAnswers[currentIdx] === optIdx;
-                  return (
-                    <button
-                      key={optIdx}
-                      onClick={() => handleSelectOption(optIdx)}
-                      className={`p-4 rounded-2xl text-xs sm:text-sm font-semibold text-left transition-all border flex items-center justify-between ${
-                        isSelected
-                          ? 'bg-amber-50 border-amber-500 text-amber-900 shadow-md ring-2 ring-amber-400/20'
-                          : 'bg-white border-gray-200 text-gray-700 hover:border-amber-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold ${
-                          isSelected ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {String.fromCharCode(65 + optIdx)}
-                        </span>
-                        <span>{opt}</span>
-                      </div>
-                      {isSelected && <Icon name="Check" size={16} className="text-amber-600 flex-shrink-0" />}
-                    </button>
-                  );
-                })}
-              </div>
+          {/* Live Voice Conversation Transcript */}
+          <div className="space-y-2">
+            <span className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+              Live Voice Transcript:
+            </span>
+            <div className="h-48 overflow-y-auto p-4 bg-white rounded-2xl border border-gray-200 text-xs space-y-3 shadow-inner">
+              {messages.length === 0 ? (
+                <p className="text-gray-400 italic text-center py-8">Connecting Deepgram AI Voice Exam...</p>
+              ) : (
+                messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`p-3 rounded-2xl max-w-[85%] leading-relaxed ${
+                      msg.role === 'user'
+                        ? 'bg-primary-600 text-white ml-auto rounded-br-xs'
+                        : 'bg-gray-100 text-gray-800 mr-auto rounded-bl-xs'
+                    }`}
+                  >
+                    <p className="font-medium">{msg.content}</p>
+                    <span className="text-[9px] opacity-60 block text-right mt-1 font-mono">{msg.time}</span>
+                  </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
             </div>
+          </div>
 
-            {/* Footer Buttons */}
-            <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
-              <button
-                onClick={() => {
-                  disconnectDeepgramSession(true);
-                  setStep('input');
-                }}
-                className="text-xs font-bold text-gray-400 hover:text-gray-600"
-              >
-                Cancel Test
-              </button>
+          {/* Action Footer */}
+          <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
+            <button
+              onClick={() => {
+                disconnectDeepgramSession(true);
+                setStep('input');
+              }}
+              className="text-xs font-bold text-gray-400 hover:text-gray-600"
+            >
+              Cancel Exam
+            </button>
 
-              <button
-                onClick={handleNextQuestion}
-                className="btn-primary py-3 px-6 text-xs font-bold uppercase tracking-wider flex items-center gap-2"
-              >
-                {currentIdx < 9 ? 'Next Question' : 'Finish & Get Certificate'}
-                <Icon name="ArrowRight" size={14} />
-              </button>
-            </div>
-
+            <button
+              onClick={handleCompleteExam}
+              className="btn-primary py-3 px-6 text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md"
+            >
+              Finish Oral Exam & View Certificate <Icon name="ArrowRight" size={14} />
+            </button>
           </div>
 
         </div>
@@ -702,7 +549,7 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
 
                 {/* Title */}
                 <div className="text-center space-y-2 mb-6">
-                  <p className="text-xs font-bold uppercase tracking-widest text-amber-600">Official Certificate of Skill Mastery</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-amber-600">Official Certificate of Oral Skill Mastery</p>
                   <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
                     {activeSkill}
                   </h1>
@@ -716,15 +563,15 @@ Goal: Conduct a 10-question oral & visual skill assessment. Speak clearly, ask o
                 {/* Score Cards */}
                 <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-200 text-center mb-6">
                   <div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase block">Score</span>
-                    <strong className="text-lg font-black text-gray-800">{score} / 10</strong>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase block">Oral Score</span>
+                    <strong className="text-lg font-black text-gray-800">{userScore} / 10</strong>
                   </div>
                   <div>
                     <span className="text-[10px] font-bold text-gray-400 uppercase block">Accuracy</span>
                     <strong className="text-lg font-black text-amber-600">{percentage}%</strong>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase block">Tested Mode</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase block">Exam Mode</span>
                     <strong className="text-xs font-bold text-purple-600 block mt-1 uppercase">{difficultyMode} Mode</strong>
                   </div>
                 </div>

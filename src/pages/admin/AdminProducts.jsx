@@ -518,14 +518,14 @@ export default function AdminProducts() {
       {/* Image Preview Lightbox Modal */}
       {previewImageProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in" onClick={() => setPreviewImageProduct(null)}>
-          <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl transition-all transform scale-100" onClick={e => e.stopPropagation()}>
-            <div className="relative bg-gray-950 p-4 flex items-center justify-center min-h-[280px]">
-              <img src={previewImageProduct.image} alt={previewImageProduct.name} className="max-h-[380px] w-auto object-contain rounded-lg shadow-md" />
-              <button onClick={() => setPreviewImageProduct(null)} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-600 transition-colors">
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl transition-all transform scale-100" onClick={e => e.stopPropagation()}>
+            <div className="relative bg-gray-950 p-4 flex items-center justify-center min-h-[200px] max-h-[280px] flex-shrink-0">
+              <img src={previewImageProduct.image} alt={previewImageProduct.name} className="max-h-[240px] w-auto object-contain rounded-lg shadow-md" />
+              <button onClick={() => setPreviewImageProduct(null)} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center transition-colors z-20 shadow-md">
                 <Icon name="X" size={18} />
               </button>
             </div>
-            <div className="p-5">
+            <div className="p-5 overflow-y-auto flex-1 space-y-3">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <h3 className="font-bold text-gray-900 text-base">{previewImageProduct.name}</h3>
                 <span className="text-lg font-black text-primary-600">₹{previewImageProduct.price?.toLocaleString('en-IN')}</span>
@@ -542,7 +542,7 @@ export default function AdminProducts() {
               {previewImageProduct.description && (
                 <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-100 mb-4">{previewImageProduct.description}</p>
               )}
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
                 <button onClick={() => { handleEdit(previewImageProduct); setPreviewImageProduct(null); }} className="btn-primary text-xs py-2 px-4">
                   <Icon name="Edit" size={14} /> Edit Product
                 </button>
