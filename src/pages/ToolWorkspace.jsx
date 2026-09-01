@@ -19,8 +19,10 @@ import InvoiceMaker from '../components/tools/InvoiceMaker';
 import OcrTextExtractor from '../components/tools/OcrTextExtractor';
 import ThanglishTypingTool from '../components/tools/ThanglishTypingTool';
 import FileConverter from '../components/tools/FileConverter';
+import FigmaMiniStudio from '../components/tools/FigmaMiniStudio';
 
 export const TOOLS_LIST = [
+  { id: 'figma-mini', name: 'Figma Mini Studio', icon: 'Grid' },
   { id: 'file-converter', name: 'Universal File Converter', icon: 'Cpu' },
   { id: 'thanglish-typing', name: 'Thanglish Tamil Typing Tool', icon: 'FileText' },
   { id: 'passport', name: 'Passport Photo Maker', icon: 'Camera' },
@@ -59,6 +61,8 @@ export default function ToolWorkspace() {
 
   const renderToolComponent = () => {
     switch (toolId) {
+      case 'figma-mini':
+        return <FigmaMiniStudio />;
       case 'file-converter':
         return <FileConverter />;
       case 'thanglish-typing':
