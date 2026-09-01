@@ -17,12 +17,14 @@ import RemoveBackgroundAI from '../components/tools/RemoveBackgroundAI';
 import FlipbookPdfViewer from '../components/tools/FlipbookPdfViewer';
 import InvoiceMaker from '../components/tools/InvoiceMaker';
 import OcrTextExtractor from '../components/tools/OcrTextExtractor';
+import ThanglishTypingTool from '../components/tools/ThanglishTypingTool';
 
 export const TOOLS_LIST = [
+  { id: 'thanglish-typing', name: 'Thanglish Tamil Typing Tool', icon: 'FileText' },
+  { id: 'passport', name: 'Passport Photo Maker', icon: 'Camera' },
   { id: 'qr', name: 'QR Code Generator', icon: 'QrCode' },
   { id: 'barcode', name: 'Barcode Generator', icon: 'Barcode' },
   { id: 'gradient', name: 'Background Gradient', icon: 'Gradient' },
-  { id: 'passport', name: 'Passport Photo Maker', icon: 'Camera' },
   { id: 'palette', name: 'Color Palette', icon: 'Layers' },
   { id: 'ratio', name: 'Aspect Ratio Calculator', icon: 'Grid' },
   { id: 'copywriter', name: 'Brand Copywriter', icon: 'FileText' },
@@ -35,23 +37,28 @@ export const TOOLS_LIST = [
 
 export default function ToolWorkspace() {
   const { toolId } = useParams();
-  const { user, isLoggedIn } = useAuth();
+  const { user, isLoggedIn, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Enforce Google Auth login check
+  // Enforce Google Auth login check safely on page refresh
   useEffect(() => {
-    if (!isLoggedIn || !user) {
+    if (loading) return; // Wait until AuthContext initializes user state from localStorage on page refresh
+
+    const hasStoredUser = !!localStorage.getItem('sg_user');
+    if (!isLoggedIn && !user && !hasStoredUser) {
       toast.error('Please sign in with Google Auth to access Tools!', {
         duration: 4000,
       });
       navigate('/userlogin');
     }
-  }, [isLoggedIn, user, navigate]);
+  }, [isLoggedIn, user, loading, navigate]);
 
   const tool = TOOLS_LIST.find((t) => t.id === toolId);
 
   const renderToolComponent = () => {
     switch (toolId) {
+      case 'thanglish-typing':
+        return <ThanglishTypingTool />;
       case 'qr':
         return <QrCodeGenerator />;
       case 'barcode':
@@ -78,7 +85,7 @@ export default function ToolWorkspace() {
         return <InvoiceMaker />;
       default:
         return (
-          <div className="text-center py-16">
+          <div className="text-center py-16 font-outfit">
             <Icon name="AlertCircle" size={48} className="mx-auto text-gray-300 mb-3" />
             <h2 className="text-lg font-bold text-gray-800">Tool Not Found</h2>
             <p className="text-xs text-gray-400 mt-1 mb-4">The tool you requested doesn't exist.</p>
@@ -90,13 +97,26 @@ export default function ToolWorkspace() {
     }
   };
 
-  if (!isLoggedIn || !user) {
+  // Show sleek loader while AuthContext initializes from localStorage during page reload
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-outfit">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-bold text-gray-500">Loading Tool Workspace...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const hasStoredUser = !!localStorage.getItem('sg_user');
+  if (!isLoggedIn && !user && !hasStoredUser) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-outfit">
-      {/* Workspace Top Header Bar - NO main site header/announcement bar */}
+      {/* Workspace Top Header Bar */}
       <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sticky top-0 z-30 shadow-sm flex items-center justify-between">
         <Link
           to="/free-tools"

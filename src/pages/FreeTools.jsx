@@ -36,6 +36,14 @@ export default function FreeTools() {
   // Tool definitions with metadata
   const tools = [
     {
+      id: 'thanglish-typing',
+      name: 'Thanglish Tamil Typing Tool',
+      desc: 'Type phonetically in Tanglish/English (vanakkam) to get live Tamil script (வணக்கம்). Copy or download text easily.',
+      icon: 'FileText',
+      badge: 'New',
+      gradient: 'from-orange-500 to-amber-600',
+    },
+    {
       id: 'qr',
       name: 'QR Code Generator',
       desc: 'Generate custom QR codes with adjustable quiet zones, background colors, and centered brand logo overlays.',
