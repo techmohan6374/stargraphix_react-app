@@ -78,7 +78,7 @@ export default function Header() {
 
       {/* Main header */}
       <div className="container-custom py-3">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between gap-4 w-full">
           {/* Logo - always visible */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <img src="/logo.png" alt="Star Graphix" className="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
@@ -107,8 +107,8 @@ export default function Header() {
             </div>
           </form>
 
-          {/* Right actions */}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          {/* Right actions — aligned to far right end */}
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-auto">
             {/* Mobile search toggle */}
             <button
               onClick={() => setMobileSearch(!mobileSearch)}
