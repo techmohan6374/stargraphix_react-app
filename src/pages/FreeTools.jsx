@@ -36,6 +36,14 @@ export default function FreeTools() {
   // Tool definitions with metadata
   const tools = [
     {
+      id: 'text-share',
+      name: 'Encrypted Text Sharing Tool',
+      desc: 'Encode messages, notes, or Tamil script into shareable URL parameters (btoa/atob). Copy link or scan QR code.',
+      icon: 'Share',
+      badge: 'New',
+      gradient: 'from-purple-600 to-indigo-600',
+    },
+    {
       id: 'file-converter',
       name: 'Universal File Converter',
       desc: 'Convert images to PNG/JPG/WebP/BMP, merge images into PDF, or extract audio tracks from MP4/WebM videos.',
