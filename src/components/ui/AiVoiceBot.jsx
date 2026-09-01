@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Visualizer from './Visualizer';
 
@@ -42,10 +42,11 @@ export default function AiVoiceBot() {
   const location = useLocation();
   const { user, isLoggedIn } = useAuth();
 
-  // Hide AI bot if not logged in or on admin routes
-  if (!isLoggedIn || !user || location.pathname.startsWith('/admin')) {
+  // Hide AI bot on all admin routes only
+  if (location.pathname.startsWith('/admin')) {
     return null;
   }
+
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState('idle'); // idle | connecting | connected | error
   const [callDuration, setCallDuration] = useState('');
@@ -305,8 +306,8 @@ export default function AiVoiceBot() {
           }}
         >
           {/* Header */}
-          <div style={{ background: 'linear-gradient(135deg,#CC0000,#990000)', color: '#fff', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ background: 'linear-gradient(135deg,#CC0000,#990000)', color: '#fff', padding: '12px 16px', display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', itemsCenter: 'center', gap: '10px' }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: statusColor, boxShadow: `0 0 8px ${statusColor}`, transition: 'background 0.3s' }} />
               <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>AI Voice Assistant</span>
               {callDuration && (
@@ -316,13 +317,15 @@ export default function AiVoiceBot() {
               )}
             </div>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <button
-                onClick={() => setActiveTab(t => t === 'chat' ? 'logs' : 'chat')}
-                title="Toggle Logs"
-                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, width: 28, height: 28, cursor: 'pointer', color: '#fff', fontSize: '0.75rem', fontWeight: 700 }}
-              >
-                {activeTab === 'chat' ? '≡' : '💬'}
-              </button>
+              {isLoggedIn && user && (
+                <button
+                  onClick={() => setActiveTab(t => t === 'chat' ? 'logs' : 'chat')}
+                  title="Toggle Logs"
+                  style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, width: 28, height: 28, cursor: 'pointer', color: '#fff', fontSize: '0.75rem', fontWeight: 700 }}
+                >
+                  {activeTab === 'chat' ? '≡' : '💬'}
+                </button>
+              )}
               <button
                 onClick={() => setIsOpen(false)}
                 style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, width: 28, height: 28, cursor: 'pointer', color: '#fff', fontSize: '1rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -332,130 +335,169 @@ export default function AiVoiceBot() {
             </div>
           </div>
 
-          {/* Message / Log Area */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '12px', minHeight: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {activeTab === 'chat' ? (
-              messages.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#9ca3af', fontSize: '0.82rem', marginTop: 'auto', marginBottom: 'auto' }}>
-                  <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🎙️</div>
-                  <p style={{ fontWeight: 600, color: '#6b7280' }}>Ready to chat</p>
-                  <p style={{ fontSize: '0.75rem', marginTop: 4 }}>Click "Start Call" to speak with our AI assistant.</p>
-                </div>
-              ) : (
-                messages.map(msg => (
-                  <div key={msg.id} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                    <div style={{
-                      maxWidth: '80%',
-                      background: msg.role === 'user' ? '#CC0000' : '#f3f4f6',
-                      color: msg.role === 'user' ? '#fff' : '#1f2937',
-                      borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                      padding: '8px 12px',
-                      fontSize: '0.82rem',
-                      lineHeight: 1.5,
-                    }}>
-                      <div>{msg.content}</div>
-                      <div style={{ fontSize: '0.65rem', opacity: 0.6, marginTop: 4, textAlign: 'right' }}>{msg.time}</div>
-                    </div>
-                  </div>
-                ))
-              )
-            ) : (
-              logs.length === 0 ? (
-                <p style={{ color: '#9ca3af', fontSize: '0.75rem', textAlign: 'center', marginTop: 'auto', marginBottom: 'auto' }}>No system logs yet.</p>
-              ) : (
-                logs.map(log => (
-                  <div key={log.id} style={{
-                    fontSize: '0.7rem',
-                    fontFamily: 'monospace',
-                    color: log.type === 'error' ? '#ef4444' : log.type === 'warning' ? '#f59e0b' : log.type === 'success' ? '#22c55e' : '#6b7280',
-                    padding: '2px 0',
-                  }}>
-                    <span style={{ opacity: 0.6 }}>[{log.time}]</span> {log.text}
-                  </div>
-                ))
-              )
-            )}
-            <div ref={activeTab === 'chat' ? messagesEndRef : logsEndRef} />
-          </div>
-
-          {/* Voice Visualizer */}
-          <div style={{ padding: '8px 16px', background: '#fafafa', borderTop: '1px solid #f0f0f0' }}>
-            <Visualizer
-              getUserVolume={() => userVolumeRef.current}
-              getAgentVolume={() => agentVolumeRef.current}
-              status={status}
-            />
-          </div>
-
-          {/* Controls */}
-          <div style={{ padding: '10px 16px 14px', background: '#fff', display: 'flex', justifyContent: 'center' }}>
-            {status === 'idle' || status === 'error' ? (
-              <button
-                onClick={connectSession}
+          {/* Guest Unauthenticated Login Card */}
+          {!isLoggedIn || !user ? (
+            <div style={{ padding: '32px 24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', margin: 'auto' }}>
+              <div style={{ fontSize: '2.5rem', background: '#fee2e2', width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justify: 'center', boxShadow: '0 4px 12px rgba(204,0,0,0.15)' }}>
+                🤖
+              </div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1f2937', margin: 0 }}>
+                Access AI Voice Assistant
+              </h3>
+              <p style={{ fontSize: '0.82rem', color: '#6b7280', lineHeight: 1.5, margin: 0 }}>
+                If you want to access the AI Voice Assistant, please login or sign up with Google.
+              </p>
+              <Link
+                to="/userlogin"
+                onClick={() => setIsOpen(false)}
                 style={{
+                  marginTop: '8px',
                   background: 'linear-gradient(135deg,#CC0000,#990000)',
                   color: '#fff',
-                  border: 'none',
+                  padding: '11px 24px',
                   borderRadius: 50,
-                  padding: '10px 32px',
                   fontWeight: 700,
-                  fontSize: '0.88rem',
-                  cursor: 'pointer',
-                  display: 'flex',
+                  fontSize: '0.85rem',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 16px rgba(204,0,0,0.35)',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 8,
-                  boxShadow: '0 4px 14px rgba(204,0,0,0.35)',
-                  transition: 'transform 0.15s',
-                  fontFamily: "'Outfit', sans-serif",
+                  gap: '6px',
                 }}
-                onMouseEnter={e => e.target.style.transform = 'scale(1.04)'}
-                onMouseLeave={e => e.target.style.transform = 'scale(1)'}
               >
-                🎙️ Start Call
-              </button>
-            ) : status === 'connecting' ? (
-              <button disabled style={{
-                background: '#f3f4f6',
-                color: '#9ca3af',
-                border: 'none',
-                borderRadius: 50,
-                padding: '10px 32px',
-                fontWeight: 700,
-                fontSize: '0.88rem',
-                cursor: 'not-allowed',
-                fontFamily: "'Outfit', sans-serif",
-              }}>
-                ⏳ Connecting...
-              </button>
-            ) : (
-              <button
-                onClick={() => disconnectSession(true)}
-                style={{
-                  background: '#fee2e2',
-                  color: '#ef4444',
-                  border: '2px solid #fca5a5',
-                  borderRadius: 50,
-                  padding: '10px 32px',
-                  fontWeight: 700,
-                  fontSize: '0.88rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  transition: 'transform 0.15s',
-                  fontFamily: "'Outfit', sans-serif",
-                }}
-                onMouseEnter={e => e.target.style.transform = 'scale(1.04)'}
-                onMouseLeave={e => e.target.style.transform = 'scale(1)'}
-              >
-                📵 End Call
-              </button>
-            )}
-          </div>
+                Login / Sign Up with Google →
+              </Link>
+            </div>
+          ) : (
+            /* Logged-In Voice Agent Body */
+            <>
+              {/* Message / Log Area */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '12px', minHeight: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {activeTab === 'chat' ? (
+                  messages.length === 0 ? (
+                    <div style={{ textAlign: 'center', color: '#9ca3af', fontSize: '0.82rem', marginTop: 'auto', marginBottom: 'auto' }}>
+                      <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🎙️</div>
+                      <p style={{ fontWeight: 600, color: '#6b7280' }}>Ready to chat</p>
+                      <p style={{ fontSize: '0.75rem', marginTop: 4 }}>Click "Start Call" to speak with our AI assistant.</p>
+                    </div>
+                  ) : (
+                    messages.map(msg => (
+                      <div key={msg.id} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                        <div style={{
+                          maxWidth: '80%',
+                          background: msg.role === 'user' ? '#CC0000' : '#f3f4f6',
+                          color: msg.role === 'user' ? '#fff' : '#1f2937',
+                          borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                          padding: '8px 12px',
+                          fontSize: '0.82rem',
+                          lineHeight: 1.5,
+                        }}>
+                          <div>{msg.content}</div>
+                          <div style={{ fontSize: '0.65rem', opacity: 0.6, marginTop: 4, textAlign: 'right' }}>{msg.time}</div>
+                        </div>
+                      </div>
+                    ))
+                  )
+                ) : (
+                  logs.length === 0 ? (
+                    <p style={{ color: '#9ca3af', fontSize: '0.75rem', textAlign: 'center', marginTop: 'auto', marginBottom: 'auto' }}>No system logs yet.</p>
+                  ) : (
+                    logs.map(log => (
+                      <div key={log.id} style={{
+                        fontSize: '0.7rem',
+                        fontFamily: 'monospace',
+                        color: log.type === 'error' ? '#ef4444' : log.type === 'warning' ? '#f59e0b' : log.type === 'success' ? '#22c55e' : '#6b7280',
+                        padding: '2px 0',
+                      }}>
+                        <span style={{ opacity: 0.6 }}>[{log.time}]</span> {log.text}
+                      </div>
+                    ))
+                  )
+                )}
+                <div ref={activeTab === 'chat' ? messagesEndRef : logsEndRef} />
+              </div>
+
+              {/* Voice Visualizer */}
+              <div style={{ padding: '8px 16px', background: '#fafafa', borderTop: '1px solid #f0f0f0' }}>
+                <Visualizer
+                  getUserVolume={() => userVolumeRef.current}
+                  getAgentVolume={() => agentVolumeRef.current}
+                  status={status}
+                />
+              </div>
+
+              {/* Controls */}
+              <div style={{ padding: '10px 16px 14px', background: '#fff', display: 'flex', justifyContent: 'center' }}>
+                {status === 'idle' || status === 'error' ? (
+                  <button
+                    onClick={connectSession}
+                    style={{
+                      background: 'linear-gradient(135deg,#CC0000,#990000)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 50,
+                      padding: '10px 32px',
+                      fontWeight: 700,
+                      fontSize: '0.88rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      boxShadow: '0 4px 14px rgba(204,0,0,0.35)',
+                      transition: 'transform 0.15s',
+                      fontFamily: "'Outfit', sans-serif",
+                    }}
+                    onMouseEnter={e => e.target.style.transform = 'scale(1.04)'}
+                    onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+                  >
+                    🎙️ Start Call
+                  </button>
+                ) : status === 'connecting' ? (
+                  <button disabled style={{
+                    background: '#f3f4f6',
+                    color: '#9ca3af',
+                    border: 'none',
+                    borderRadius: 50,
+                    padding: '10px 32px',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
+                    cursor: 'not-allowed',
+                    fontFamily: "'Outfit', sans-serif",
+                  }}>
+                    ⏳ Connecting...
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => disconnectSession(true)}
+                    style={{
+                      background: '#fee2e2',
+                      color: '#ef4444',
+                      border: '2px solid #fca5a5',
+                      borderRadius: 50,
+                      padding: '10px 32px',
+                      fontWeight: 700,
+                      fontSize: '0.88rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      transition: 'transform 0.15s',
+                      fontFamily: "'Outfit', sans-serif",
+                    }}
+                    onMouseEnter={e => e.target.style.transform = 'scale(1.04)'}
+                    onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+                  >
+                    功能 End Call
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
         </div>
       )}
 
-      {/* Floating Trigger Button */}
+      {/* Floating Trigger Button — Always visible for everyone */}
       <button
         onClick={() => setIsOpen(o => !o)}
         title={isOpen ? 'Close AI Assistant' : 'Open AI Voice Assistant'}
