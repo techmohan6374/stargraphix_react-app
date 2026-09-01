@@ -16,6 +16,7 @@ import PassportPhotoMaker from '../components/tools/PassportPhotoMaker';
 import RemoveBackgroundAI from '../components/tools/RemoveBackgroundAI';
 import FlipbookPdfViewer from '../components/tools/FlipbookPdfViewer';
 import InvoiceMaker from '../components/tools/InvoiceMaker';
+import OcrTextExtractor from '../components/tools/OcrTextExtractor';
 
 export default function FreeTools() {
   const { user, isLoggedIn } = useAuth();
@@ -23,7 +24,7 @@ export default function FreeTools() {
 
   const handleOpenTool = (toolId) => {
     if (!isLoggedIn || !user) {
-      toast.error('Please sign in with Google Auth to access AI & Creative Tools!', {
+      toast.error('Please sign in with Google Auth to access Creative Tools!', {
         duration: 4000,
       });
       navigate('/userlogin');
@@ -68,7 +69,7 @@ export default function FreeTools() {
     },
     {
       id: 'palette',
-      name: 'AI Color Palette',
+      name: 'Color Palette',
       desc: 'Type any mood or design theme keyword (e.g. vintage neon, soft pastel) to generate a matching HEX color palette.',
       icon: 'Layers',
       badge: 'Active',
@@ -84,7 +85,7 @@ export default function FreeTools() {
     },
     {
       id: 'copywriter',
-      name: 'AI Brand Copywriter',
+      name: 'Brand Copywriter',
       desc: 'Simulate high-impact copywriting taglines, flyer catchphrases, and social captions based on tone and industry.',
       icon: 'FileText',
       badge: 'Active',
@@ -105,6 +106,14 @@ export default function FreeTools() {
       icon: 'Camera',
       badge: 'New',
       gradient: 'from-rose-500 to-red-600',
+    },
+    {
+      id: 'ocr',
+      name: 'Image Text Extractor (OCR)',
+      desc: 'Scan images or document photos to extract printed/handwritten text automatically using AI OCR recognition.',
+      icon: 'FileText',
+      badge: 'New',
+      gradient: 'from-amber-600 to-yellow-600',
     },
     {
       id: 'flipbook',

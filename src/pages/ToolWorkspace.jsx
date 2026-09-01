@@ -16,6 +16,7 @@ import PassportPhotoMaker from '../components/tools/PassportPhotoMaker';
 import RemoveBackgroundAI from '../components/tools/RemoveBackgroundAI';
 import FlipbookPdfViewer from '../components/tools/FlipbookPdfViewer';
 import InvoiceMaker from '../components/tools/InvoiceMaker';
+import OcrTextExtractor from '../components/tools/OcrTextExtractor';
 
 export const TOOLS_LIST = [
   { id: 'qr', name: 'QR Code Generator', icon: 'QrCode' },
@@ -27,6 +28,7 @@ export const TOOLS_LIST = [
   { id: 'copywriter', name: 'Brand Copywriter', icon: 'FileText' },
   { id: 'base64', name: 'Image to Base64 Encoder', icon: 'Image' },
   { id: 'remove-bg', name: 'Remove Background', icon: 'Camera' },
+  { id: 'ocr', name: 'Image Text Extractor (OCR)', icon: 'FileText' },
   { id: 'flipbook', name: '3D PDF Flipbook', icon: 'Layers' },
   { id: 'invoice', name: 'Invoice Maker', icon: 'FileText' },
 ];
@@ -68,6 +70,8 @@ export default function ToolWorkspace() {
         return <ImageBase64Converter />;
       case 'remove-bg':
         return <RemoveBackgroundAI />;
+      case 'ocr':
+        return <OcrTextExtractor />;
       case 'flipbook':
         return <FlipbookPdfViewer />;
       case 'invoice':
