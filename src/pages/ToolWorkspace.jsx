@@ -18,8 +18,10 @@ import FlipbookPdfViewer from '../components/tools/FlipbookPdfViewer';
 import InvoiceMaker from '../components/tools/InvoiceMaker';
 import OcrTextExtractor from '../components/tools/OcrTextExtractor';
 import ThanglishTypingTool from '../components/tools/ThanglishTypingTool';
+import FileConverter from '../components/tools/FileConverter';
 
 export const TOOLS_LIST = [
+  { id: 'file-converter', name: 'Universal File Converter', icon: 'Cpu' },
   { id: 'thanglish-typing', name: 'Thanglish Tamil Typing Tool', icon: 'FileText' },
   { id: 'passport', name: 'Passport Photo Maker', icon: 'Camera' },
   { id: 'qr', name: 'QR Code Generator', icon: 'QrCode' },
@@ -57,6 +59,8 @@ export default function ToolWorkspace() {
 
   const renderToolComponent = () => {
     switch (toolId) {
+      case 'file-converter':
+        return <FileConverter />;
       case 'thanglish-typing':
         return <ThanglishTypingTool />;
       case 'qr':

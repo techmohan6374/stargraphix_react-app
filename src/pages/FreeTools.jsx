@@ -36,6 +36,14 @@ export default function FreeTools() {
   // Tool definitions with metadata
   const tools = [
     {
+      id: 'file-converter',
+      name: 'Universal File Converter',
+      desc: 'Convert images to PNG/JPG/WebP/BMP, merge images into PDF, or extract audio tracks from MP4/WebM videos.',
+      icon: 'Cpu',
+      badge: 'New',
+      gradient: 'from-indigo-600 to-purple-600',
+    },
+    {
       id: 'thanglish-typing',
       name: 'Thanglish Tamil Typing Tool',
       desc: 'Type phonetically in Tanglish/English (vanakkam) to get live Tamil script (வணக்கம்). Copy or download text easily.',
