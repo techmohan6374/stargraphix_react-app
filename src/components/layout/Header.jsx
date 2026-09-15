@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import Icon from '../icons/Icons';
 import { navCategories } from '../../data/categories';
+import HeaderMascot from '../ui/HeaderMascot';
 
 export default function Header() {
   const { user, logout, isAdmin } = useAuth();
@@ -88,6 +89,7 @@ export default function Header() {
             </div>
           </Link>
 
+
           {/* Search bar — desktop only */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl mx-4">
             <div className="relative flex w-full">
@@ -106,6 +108,11 @@ export default function Header() {
               </button>
             </div>
           </form>
+
+          {/* Kamran Mascot — after search bar, visible on desktop */}
+          <div className="hidden md:flex items-center">
+            <HeaderMascot />
+          </div>
 
           {/* Right actions — aligned to far right end */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-auto">
