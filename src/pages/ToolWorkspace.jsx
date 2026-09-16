@@ -20,6 +20,7 @@ import OcrTextExtractor from '../components/tools/OcrTextExtractor';
 import ThanglishTypingTool from '../components/tools/ThanglishTypingTool';
 import FileConverter from '../components/tools/FileConverter';
 import TextSharingTool from '../components/tools/TextSharingTool';
+import ImageUpscaler from '../components/tools/ImageUpscaler';
 
 export const TOOLS_LIST = [
   { id: 'text-share', name: 'Encrypted Text Sharing Tool', icon: 'Share' },
@@ -37,6 +38,7 @@ export const TOOLS_LIST = [
   { id: 'ocr', name: 'Image Text Extractor (OCR)', icon: 'FileText' },
   { id: 'flipbook', name: '3D PDF Flipbook', icon: 'Layers' },
   { id: 'invoice', name: 'Invoice Maker', icon: 'FileText' },
+  { id: 'image-upscaler', name: 'AI Image Upscaler', icon: 'Image' },
 ];
 
 export default function ToolWorkspace() {
@@ -95,6 +97,8 @@ export default function ToolWorkspace() {
         return <FlipbookPdfViewer />;
       case 'invoice':
         return <InvoiceMaker />;
+      case 'image-upscaler':
+        return <ImageUpscaler />;
       default:
         return (
           <div className="text-center py-16 font-outfit">

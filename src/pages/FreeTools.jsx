@@ -17,6 +17,7 @@ import RemoveBackgroundAI from '../components/tools/RemoveBackgroundAI';
 import FlipbookPdfViewer from '../components/tools/FlipbookPdfViewer';
 import InvoiceMaker from '../components/tools/InvoiceMaker';
 import OcrTextExtractor from '../components/tools/OcrTextExtractor';
+import ImageUpscaler from '../components/tools/ImageUpscaler';
 
 export default function FreeTools() {
   const { user, isLoggedIn } = useAuth();
@@ -154,6 +155,14 @@ export default function FreeTools() {
       icon: 'FileText',
       badge: 'New',
       gradient: 'from-emerald-600 to-teal-600',
+    },
+    {
+      id: 'image-upscaler',
+      name: 'AI Image Upscaler',
+      desc: 'Enhance and upscale images up to 4× resolution using Clipdrop AI. Perfect for print, posters, and product photography. Includes before/after comparison.',
+      icon: 'Image',
+      badge: 'New',
+      gradient: 'from-violet-600 to-indigo-600',
     },
   ];
 
