@@ -121,8 +121,8 @@ export default function AdminSmtp() {
           <h1 className="text-lg font-bold text-gray-900">SMTP Notification Settings</h1>
         </header>
 
-        <div className="p-4 sm:p-6 max-w-4xl">
-          <div className="bg-white rounded-xl border border-gray-100 p-6 mb-6">
+        <div className="p-4 sm:p-6 lg:p-8 w-full space-y-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-xs">
             <h2 className="font-bold text-gray-800 text-base mb-2 flex items-center gap-2">
               <Icon name="Mail" size={18} className="text-primary-600" /> Admin Email Configuration
             </h2>
@@ -148,7 +148,7 @@ export default function AdminSmtp() {
           {loading ? (
             <TableSkeleton rows={4} cols={2} />
           ) : (
-            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
               <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Configured Recipients</span>
                 <span className="text-xs font-semibold px-2 py-0.5 bg-primary-50 text-primary-700 rounded-full">{emails.length} Emails</span>
