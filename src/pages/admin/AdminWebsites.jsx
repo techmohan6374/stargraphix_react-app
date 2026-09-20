@@ -239,11 +239,18 @@ export default function AdminWebsites() {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 10;
 
   useEffect(() => {
     setCurrentPage(1);
   }, [search, selectedCategory]);
+
+  useEffect(() => {
+    const maxPage = Math.max(1, Math.ceil(filteredWebsites.length / itemsPerPage));
+    if (currentPage > maxPage) {
+      setCurrentPage(1);
+    }
+  }, [filteredWebsites.length, itemsPerPage, currentPage]);
 
   const paginatedWebsites = filteredWebsites.slice(
     (currentPage - 1) * itemsPerPage,

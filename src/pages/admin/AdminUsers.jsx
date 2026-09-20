@@ -19,6 +19,13 @@ export default function AdminUsers() {
     setCurrentPage(1);
   }, [search]);
 
+  useEffect(() => {
+    const maxPage = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+    if (currentPage > maxPage) {
+      setCurrentPage(1);
+    }
+  }, [filtered.length, itemsPerPage, currentPage]);
+
   const fetchUsersAndOrders = async () => {
     const storedUser = localStorage.getItem('sg_user');
     let token = null;
