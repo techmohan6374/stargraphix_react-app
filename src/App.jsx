@@ -33,6 +33,7 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminSmtp from './pages/admin/AdminSmtp';
+import AdminWebsites from './pages/admin/AdminWebsites';
 
 // Protected route wrapper
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -142,6 +143,7 @@ export default function App() {
         <Route path="/admin/products" element={<ProtectedRoute adminOnly><AdminProducts /></ProtectedRoute>} />
         <Route path="/admin/orders" element={<ProtectedRoute adminOnly><AdminOrders /></ProtectedRoute>} />
         <Route path="/admin/users" element={<ProtectedRoute adminOnly><AdminUsers /></ProtectedRoute>} />
+        <Route path="/admin/websites" element={<ProtectedRoute adminOnly><AdminWebsites /></ProtectedRoute>} />
         <Route path="/admin/smtp" element={<ProtectedRoute adminOnly><AdminSmtp /></ProtectedRoute>} />
 
         {/* 404 */}

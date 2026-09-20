@@ -471,6 +471,54 @@ export default function Icon({ name, size = 20, className = '', strokeWidth = 1.
         <line x1="12" y1="4" x2="12" y2="20"/>
       </svg>
     ),
+    Calendar: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    ),
+    Sparkles: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        <path d="M5 3v4"/>
+        <path d="M19 17v4"/>
+        <path d="M3 5h4"/>
+        <path d="M17 19h4"/>
+      </svg>
+    ),
+    Cake: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/>
+        <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/>
+        <path d="M2 21h20"/>
+        <line x1="7" y1="8" x2="7" y2="11"/>
+        <line x1="12" y1="8" x2="12" y2="11"/>
+        <line x1="17" y1="8" x2="17" y2="11"/>
+        <path d="M7 4h.01"/>
+        <path d="M12 4h.01"/>
+        <path d="M17 4h.01"/>
+      </svg>
+    ),
+    HeartPulse: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+        <path d="M3.22 12H9.5l1.5-3 2 6.5 1.5-3.5h6.28"/>
+      </svg>
+    ),
+    Planet: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="7"/>
+        <path d="M3.5 14.5c4-2 13-7 17-2.5"/>
+        <path d="M5.5 17c3-1.5 10-5 13-1.5"/>
+      </svg>
+    ),
+    Rotate: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+      </svg>
+    ),
   };
 
   const icon = icons[name];

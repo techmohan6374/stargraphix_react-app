@@ -8,6 +8,7 @@ const adminNav = [
   { name: 'Products', path: '/admin/products', icon: 'Package' },
   { name: 'Orders', path: '/admin/orders', icon: 'ShoppingBag' },
   { name: 'Users', path: '/admin/users', icon: 'Users' },
+  { name: 'Websites List', path: '/admin/websites', icon: 'Globe' },
   { name: 'SMTP Config', path: '/admin/smtp', icon: 'Settings' },
 ];
 
