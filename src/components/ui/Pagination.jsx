@@ -2,77 +2,69 @@ import React from 'react';
 import Icon from '../icons/Icons';
 
 export default function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange }) {
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
-  if (totalPages <= 1) return null;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+
+  if (!totalItems || totalItems <= 0) return null;
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-xl shadow-sm">
-      {/* Mobile view controls */}
-      <div className="flex flex-1 justify-between sm:hidden">
-        <button
-          onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
-          disabled={currentPage === 1}
-          className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Previous
-        </button>
-        <button
-          onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
-          disabled={currentPage === totalPages}
-          className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Next
-        </button>
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-100 bg-white px-5 py-3.5 mt-5 rounded-2xl shadow-xs">
+      {/* Items count summary */}
+      <div>
+        <p className="text-xs text-gray-500 font-medium">
+          Showing <span className="font-bold text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+          <span className="font-bold text-gray-900">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of{' '}
+          <span className="font-bold text-primary-600">{totalItems}</span> items
+        </p>
       </div>
 
-      {/* Desktop view controls */}
-      <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs text-gray-500">
-            Showing <span className="font-semibold text-gray-800">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
-            <span className="font-semibold text-gray-800">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of{' '}
-            <span className="font-semibold text-gray-800">{totalItems}</span> items
-          </p>
+      {/* Modern Rounded Radius Pagination Controls */}
+      <div className="flex items-center gap-2">
+        {/* Previous Button */}
+        <button
+          type="button"
+          onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+          disabled={currentPage === 1}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-gray-600 bg-white hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300 rounded-full disabled:opacity-35 disabled:cursor-not-allowed transition-all active:scale-95 shadow-2xs"
+          title="Previous Page"
+        >
+          <Icon name="ChevronLeft" size={14} />
+          <span className="hidden sm:inline">Prev</span>
+        </button>
+
+        {/* Numbered Pill Buttons */}
+        <div className="flex items-center gap-1.5">
+          {Array.from({ length: totalPages }).map((_, idx) => {
+            const page = idx + 1;
+            const isCurrent = page === currentPage;
+            return (
+              <button
+                key={page}
+                type="button"
+                onClick={() => onPageChange(page)}
+                aria-current={isCurrent ? 'page' : undefined}
+                className={`min-w-[32px] h-8 px-2.5 flex items-center justify-center text-xs font-black rounded-full transition-all duration-150 active:scale-95 ${
+                  isCurrent
+                    ? 'bg-gradient-to-r from-red-600 to-primary-600 text-white shadow-md shadow-red-500/25 ring-2 ring-primary-500/30'
+                    : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-200/90 hover:border-gray-300 shadow-2xs'
+                }`}
+              >
+                {page}
+              </button>
+            );
+          })}
         </div>
-        <div>
-          <nav className="isolate inline-flex -space-x-px rounded-lg shadow-sm bg-white" aria-label="Pagination">
-            <button
-              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
-              disabled={currentPage === 1}
-              className="relative inline-flex items-center rounded-l-lg px-2 py-2 text-gray-400 border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <span className="sr-only">Previous</span>
-              <Icon name="ChevronLeft" size={16} />
-            </button>
-            {Array.from({ length: totalPages }).map((_, idx) => {
-              const page = idx + 1;
-              const isCurrent = page === currentPage;
-              return (
-                <button
-                  key={page}
-                  onClick={() => onPageChange(page)}
-                  aria-current={isCurrent ? 'page' : undefined}
-                  className={`relative inline-flex items-center px-3 py-1.5 text-xs font-bold border-y border-r border-gray-200 transition-colors ${
-                    isCurrent
-                      ? 'bg-primary-600 border-primary-600 text-white z-10'
-                      : 'text-gray-700 hover:bg-gray-50 bg-white'
-                  }`}
-                >
-                  {page}
-                </button>
-              );
-            })}
-            <button
-              onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="relative inline-flex items-center rounded-r-lg px-2 py-2 text-gray-400 border border-r border-y border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <span className="sr-only">Next</span>
-              <Icon name="ChevronRight" size={16} />
-            </button>
-          </nav>
-        </div>
+
+        {/* Next Button */}
+        <button
+          type="button"
+          onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-gray-600 bg-white hover:bg-gray-50 border border-gray-200/90 hover:border-gray-300 rounded-full disabled:opacity-35 disabled:cursor-not-allowed transition-all active:scale-95 shadow-2xs"
+          title="Next Page"
+        >
+          <span className="hidden sm:inline">Next</span>
+          <Icon name="ChevronRight" size={14} />
+        </button>
       </div>
     </div>
   );

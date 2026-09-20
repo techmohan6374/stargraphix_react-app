@@ -8,16 +8,16 @@ import { TableSkeleton } from '../../components/ui/SkeletonLoader';
 import Pagination from '../../components/ui/Pagination';
 
 const statusColors = {
-  'Pending Verification': 'bg-amber-100 text-amber-700',
-  Placed: 'bg-green-100 text-green-700',
-  Rejected: 'bg-red-100 text-red-700',
-  Confirmed: 'bg-blue-100 text-blue-700',
-  Processing: 'bg-yellow-100 text-yellow-700',
-  'In Progress': 'bg-orange-100 text-orange-700',
-  Completed: 'bg-green-100 text-green-700',
-  Cancelled: 'bg-red-100 text-red-700',
+  Placed: 'bg-emerald-100 text-emerald-800',
+  Processing: 'bg-blue-100 text-blue-800',
+  Rejected: 'bg-red-100 text-red-800',
+  'Pending Verification': 'bg-amber-100 text-amber-800',
+  Confirmed: 'bg-blue-100 text-blue-800',
+  'In Progress': 'bg-orange-100 text-orange-800',
+  Completed: 'bg-emerald-100 text-emerald-800',
+  Cancelled: 'bg-red-100 text-red-800',
 };
-const statusList = ['Pending Verification', 'Placed', 'Rejected', 'Confirmed', 'Processing', 'In Progress', 'Completed', 'Cancelled'];
+const statusList = ['Placed', 'Processing', 'Rejected'];
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -107,8 +107,12 @@ export default function AdminOrders() {
   const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
 
   return (
-    <div className="flex min-h-screen bg-gray-100 font-outfit">
-      <div className="hidden md:block w-56 fixed inset-y-0 left-0 z-20"><AdminSidebar /></div>
+    <div className="flex h-screen overflow-hidden bg-gray-100 font-outfit">
+      {/* Desktop Sidebar - Strictly Fixed */}
+      <div className="hidden md:block w-56 h-screen flex-shrink-0 z-20">
+        <AdminSidebar />
+      </div>
+
       {mobileNav && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setMobileNav(false)} />
@@ -118,7 +122,8 @@ export default function AdminOrders() {
         </div>
       )}
 
-      <div className="flex-1 md:ml-56 min-w-0">
+      {/* Scrollable Right Content - Only right side scrolls */}
+      <div className="flex-1 h-screen overflow-y-auto min-w-0">
         <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center gap-3 sticky top-0 z-30">
           <button onClick={() => setMobileNav(true)} className="md:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-600"><Icon name="Menu" size={20} /></button>
           <h1 className="text-lg font-bold text-gray-900">Orders</h1>
@@ -129,9 +134,9 @@ export default function AdminOrders() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
             {[
               { label: 'Total Orders', value: orders.length, color: 'text-blue-600' },
-              { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, color: 'text-green-600' },
-              { label: 'Pending', value: orders.filter(o => ['Confirmed', 'Processing'].includes(o.status)).length, color: 'text-yellow-600' },
-              { label: 'Completed', value: orders.filter(o => o.status === 'Completed').length, color: 'text-primary-600' },
+              { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, color: 'text-emerald-600' },
+              { label: 'Placed', value: orders.filter(o => o.status === 'Placed' || o.status === 'Pending Verification').length, color: 'text-purple-600' },
+              { label: 'Processing', value: orders.filter(o => ['Processing', 'In Progress', 'Confirmed'].includes(o.status)).length, color: 'text-amber-600' },
             ].map(s => (
               <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-4 text-center">
                 <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
@@ -156,14 +161,9 @@ export default function AdminOrders() {
                     category: 'Status Filter',
                     items: [
                       { label: 'All Statuses', value: 'All', desc: 'Show orders with any status' },
-                      { label: 'Pending Verification', value: 'Pending Verification', desc: 'Awaiting admin verification' },
-                      { label: 'Placed', value: 'Placed', desc: 'Order placed & payment verified' },
-                      { label: 'Rejected', value: 'Rejected', desc: 'Payment rejected' },
-                      { label: 'Confirmed', value: 'Confirmed', desc: 'Order confirmed' },
-                      { label: 'Processing', value: 'Processing', desc: 'Design or print processing' },
-                      { label: 'In Progress', value: 'In Progress', desc: 'Work in progress' },
-                      { label: 'Completed', value: 'Completed', desc: 'Order completed' },
-                      { label: 'Cancelled', value: 'Cancelled', desc: 'Order cancelled' },
+                      { label: 'Placed', value: 'Placed', desc: 'Order placed & payment received' },
+                      { label: 'Processing', value: 'Processing', desc: 'Order actively processing & designing' },
+                      { label: 'Rejected', value: 'Rejected', desc: 'Order or payment rejected' },
                     ],
                   },
                 ]}
@@ -215,6 +215,9 @@ export default function AdminOrders() {
                           className={`text-xs font-bold px-3 py-1.5 rounded-lg border-0 outline-none cursor-pointer ${statusColors[order.status] || 'bg-gray-100 text-gray-600'}`}
                         >
                           {statusList.map(s => <option key={s} value={s}>{s}</option>)}
+                          {!statusList.includes(order.status) && (
+                            <option value={order.status}>{order.status}</option>
+                          )}
                         </select>
                         <button onClick={e => { e.stopPropagation(); deleteOrder(order.id); }}
                           className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
@@ -268,16 +271,27 @@ export default function AdminOrders() {
                           </div>
                         )}
                         
-                        {order.status === 'Pending Verification' && (
-                          <div className="flex gap-2.5 mt-3 p-3 bg-white border border-gray-200 rounded-xl">
-                            <button onClick={() => updateStatus(order.id, 'Placed')} className="flex-grow btn-primary py-2 text-xs font-bold bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700">
-                              <Icon name="Check" size={14} /> Approve Payment (Place Order)
-                            </button>
-                            <button onClick={() => updateStatus(order.id, 'Rejected')} className="btn-secondary py-2 px-4 text-xs font-bold hover:text-red-600 hover:bg-red-50 hover:border-red-200">
-                              <Icon name="X" size={14} /> Reject
-                            </button>
-                          </div>
-                        )}
+                        <div className="flex flex-wrap items-center gap-2 mt-3 p-3 bg-white border border-gray-200 rounded-xl">
+                          <span className="text-xs font-bold text-gray-500 mr-1">Update Status:</span>
+                          <button 
+                            onClick={() => updateStatus(order.id, 'Placed')} 
+                            className={`py-1.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${order.status === 'Placed' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
+                          >
+                            <Icon name="Check" size={13} /> Placed
+                          </button>
+                          <button 
+                            onClick={() => updateStatus(order.id, 'Processing')} 
+                            className={`py-1.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${order.status === 'Processing' ? 'bg-blue-600 text-white shadow-sm' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}`}
+                          >
+                            <Icon name="Zap" size={13} /> Processing
+                          </button>
+                          <button 
+                            onClick={() => updateStatus(order.id, 'Rejected')} 
+                            className={`py-1.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${order.status === 'Rejected' ? 'bg-red-600 text-white shadow-sm' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}
+                          >
+                            <Icon name="X" size={13} /> Rejected
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>

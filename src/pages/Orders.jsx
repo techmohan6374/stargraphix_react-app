@@ -5,44 +5,61 @@ import Icon from '../components/icons/Icons';
 import { API_BASE } from '../utils/api';
 
 const statusColors = {
-  Confirmed: 'bg-blue-100 text-blue-700',
-  Processing: 'bg-yellow-100 text-yellow-700',
-  'In Progress': 'bg-orange-100 text-orange-700',
-  Completed: 'bg-green-100 text-green-700',
-  Cancelled: 'bg-red-100 text-red-700',
-  'Pending Verification': 'bg-amber-100 text-amber-700',
-  Placed: 'bg-green-100 text-green-700',
-  Rejected: 'bg-red-100 text-red-700',
+  Placed: 'bg-emerald-100 text-emerald-800',
+  Processing: 'bg-blue-100 text-blue-800',
+  Rejected: 'bg-red-100 text-red-800',
+  'Pending Verification': 'bg-amber-100 text-amber-800',
+  Confirmed: 'bg-blue-100 text-blue-800',
+  'In Progress': 'bg-blue-100 text-blue-800',
+  Completed: 'bg-emerald-100 text-emerald-800',
+  Cancelled: 'bg-red-100 text-red-800',
 };
 
-const getStepStatus = (status, index) => {
-  if (index === 0) {
-    if (status === 'Rejected') return { label: 'Payment Rejected', color: 'bg-red-50 text-red-600 border border-red-200', icon: 'XCircle' };
-    if (status === 'Pending Verification') return { label: 'Awaiting Verification', color: 'bg-amber-50 text-amber-600 border border-amber-200', icon: 'Clock' };
-    return { label: 'Payment Verified', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
+const getOrderSteps = (status) => {
+  if (status === 'Rejected') {
+    return [
+      {
+        label: 'Order Placed',
+        active: true,
+        completed: true,
+        color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        icon: 'CheckCircle',
+      },
+      {
+        label: 'Order Rejected',
+        active: true,
+        completed: false,
+        color: 'bg-red-50 text-red-700 border-red-200 ring-2 ring-red-400/20',
+        icon: 'XCircle',
+      },
+    ];
   }
-  if (index === 1) {
-    if (status === 'Rejected' || status === 'Pending Verification') return { label: 'Awaiting Confirmation', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
-    return { label: 'Order Confirmed', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
-  }
-  if (index === 2) {
-    if (['Rejected', 'Pending Verification'].includes(status)) return { label: 'In Progress', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
-    if (['Placed', 'Confirmed', 'Processing', 'In Progress'].includes(status)) return { label: 'Processing & Designing', color: 'bg-blue-50 text-blue-600 border border-blue-200', icon: 'Zap' };
-    return { label: 'Processing Completed', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
-  }
-  if (index === 3) {
-    if (status === 'Completed') return { label: 'Completed & Delivered', color: 'bg-green-50 text-green-600 border border-green-200', icon: 'CheckCircle' };
-    if (status === 'Cancelled') return { label: 'Cancelled', color: 'bg-red-50 text-red-600 border border-red-200', icon: 'XCircle' };
-    return { label: 'Completed', color: 'bg-gray-50 text-gray-400 border border-gray-100', icon: 'Circle' };
-  }
-  return { label: '', color: 'bg-gray-50 text-gray-400 border-gray-100', icon: 'Circle' };
+
+  const isProcessing = ['Processing', 'In Progress', 'Completed'].includes(status);
+  return [
+    {
+      label: 'Order Placed',
+      active: true,
+      completed: true,
+      color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      icon: 'CheckCircle',
+    },
+    {
+      label: 'Processing & Designing',
+      active: isProcessing,
+      completed: status === 'Completed',
+      color: isProcessing
+        ? 'bg-blue-50 text-blue-700 border-blue-200 ring-2 ring-blue-400/20'
+        : 'bg-gray-50 text-gray-400 border-gray-200',
+      icon: isProcessing ? 'Zap' : 'Clock',
+    },
+  ];
 };
 
-const isLineActive = (status, index) => {
-  if (index === 0) return !['Pending Verification', 'Rejected'].includes(status);
-  if (index === 1) return !['Pending Verification', 'Rejected'].includes(status);
-  if (index === 2) return status === 'Completed';
-  return false;
+const getLineColor = (status) => {
+  if (status === 'Rejected') return 'bg-red-400';
+  if (['Processing', 'In Progress', 'Completed'].includes(status)) return 'bg-emerald-500';
+  return 'bg-gray-200';
 };
 
 export default function Orders() {
@@ -199,23 +216,20 @@ export default function Orders() {
                     </div>
                   </div>
 
-                  {/* Progress tracker */}
+                  {/* Dynamic Progress tracker */}
                   <div className="mt-4 border-t border-gray-50 pt-4">
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Order Progress & Tracking</p>
                     <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2">
-                      {['Payment Verification', 'Order Confirmation', 'In Progress', 'Completed'].map((s, i, arr) => {
-                        const step = getStepStatus(order.status, i);
-                        return (
-                          <div key={s} className="flex items-center gap-2 flex-shrink-0">
-                            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${step.color}`}>
-                              <Icon name={step.icon} size={12} /> {step.label}
-                            </div>
-                            {i < arr.length - 1 && (
-                              <div className={`w-8 h-0.5 ${isLineActive(order.status, i) ? 'bg-green-500' : 'bg-gray-200'}`} />
-                            )}
+                      {getOrderSteps(order.status).map((step, i, arr) => (
+                        <div key={step.label} className="flex items-center gap-2 flex-shrink-0">
+                          <div className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold ${step.color} transition-all`}>
+                            <Icon name={step.icon} size={13} /> {step.label}
                           </div>
-                        );
-                      })}
+                          {i < arr.length - 1 && (
+                            <div className={`w-10 h-0.5 ${getLineColor(order.status)} transition-colors`} />
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

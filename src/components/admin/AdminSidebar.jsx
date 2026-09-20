@@ -23,7 +23,7 @@ export default function AdminSidebar({ mobile = false, onClose }) {
   };
 
   return (
-    <div className={`${mobile ? 'w-full' : 'w-56 flex-shrink-0'} bg-gray-950 min-h-screen flex flex-col font-outfit`}>
+    <div className={`${mobile ? 'w-full' : 'w-56'} bg-gray-950 h-full flex flex-col font-outfit select-none`}>
       {/* Logo */}
       <div className="p-4 border-b border-gray-800">
         <Link to="/admin" className="flex items-center gap-2">

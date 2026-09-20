@@ -3,6 +3,7 @@ import AdminSidebar from '../../components/admin/AdminSidebar';
 import Icon from '../../components/icons/Icons';
 import toast from 'react-hot-toast';
 import { API_BASE } from '../../utils/api';
+import Pagination from '../../components/ui/Pagination';
 
 const DEFAULT_WEBSITES = [
   {
@@ -237,6 +238,18 @@ export default function AdminWebsites() {
     return matchesSearch && matchesCategory;
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedCategory]);
+
+  const paginatedWebsites = filteredWebsites.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   const categories = ['All', 'Official', 'Tools', 'Showcase', 'Portal', 'Client'];
 
   const getCategoryBadgeClass = (category) => {
@@ -256,24 +269,24 @@ export default function AdminWebsites() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50/60 font-outfit text-left">
-      {/* Desktop Sidebar */}
-      <div className="hidden md:block flex-shrink-0">
+    <div className="flex h-screen overflow-hidden bg-gray-50/60 font-outfit text-left">
+      {/* Desktop Sidebar - Permanently fixed */}
+      <div className="hidden md:block w-56 h-screen flex-shrink-0 z-20">
         <AdminSidebar />
       </div>
 
       {/* Mobile Sidebar Overlay */}
       {mobileNav && (
         <div className="fixed inset-0 z-50 bg-black/60 md:hidden flex">
-          <div className="w-64 max-w-full">
+          <div className="w-56 max-w-full">
             <AdminSidebar mobile onClose={() => setMobileNav(false)} />
           </div>
           <div className="flex-1" onClick={() => setMobileNav(false)} />
         </div>
       )}
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main Content Area - Only right side scrolls! */}
+      <div className="flex-1 h-screen overflow-y-auto flex flex-col min-w-0">
         {/* Top Header */}
         <header className="bg-white border-b border-gray-200 px-4 sm:px-8 py-4 flex items-center justify-between sticky top-0 z-20 shadow-xs">
           <div className="flex items-center gap-3">
@@ -432,8 +445,8 @@ export default function AdminWebsites() {
                       <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredWebsites.map((item) => {
+                  <tbody className="divide-y divide-gray-100 text-sm">
+                    {paginatedWebsites.map((item) => {
                       const hasCredentials = item.username || item.password;
                       const isPasswordRevealed = revealedPasswords[item.id];
 
@@ -560,7 +573,7 @@ export default function AdminWebsites() {
           ) : (
             /* BALANCED UNIFORM GRID CARD VIEW */
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {filteredWebsites.map((item) => {
+              {paginatedWebsites.map((item) => {
                 const hasCredentials = item.username || item.password;
                 const isPasswordRevealed = revealedPasswords[item.id];
 
@@ -690,6 +703,16 @@ export default function AdminWebsites() {
                 );
               })}
             </div>
+          )}
+
+          {/* Dynamic Rounded-Radius Pagination */}
+          {filteredWebsites.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredWebsites.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+            />
           )}
         </main>
       </div>

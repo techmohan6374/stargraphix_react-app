@@ -121,8 +121,12 @@ export default function AdminUsers() {
   const paginatedUsers = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="flex min-h-screen bg-gray-100 font-outfit">
-      <div className="hidden md:block w-56 fixed inset-y-0 left-0 z-20"><AdminSidebar /></div>
+    <div className="flex h-screen overflow-hidden bg-gray-100 font-outfit">
+      {/* Desktop Sidebar - Fixed Left */}
+      <div className="hidden md:block w-56 h-screen flex-shrink-0 z-20">
+        <AdminSidebar />
+      </div>
+
       {mobileNav && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setMobileNav(false)} />
@@ -132,7 +136,8 @@ export default function AdminUsers() {
         </div>
       )}
 
-      <div className="flex-1 md:ml-56 min-w-0">
+      {/* Scrollable Right Content - Only right side scrolls */}
+      <div className="flex-1 h-screen overflow-y-auto min-w-0">
         <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center gap-3 sticky top-0 z-30">
           <button onClick={() => setMobileNav(true)} className="md:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-600"><Icon name="Menu" size={20} /></button>
           <h1 className="text-lg font-bold text-gray-900">Users</h1>

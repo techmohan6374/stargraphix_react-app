@@ -94,7 +94,7 @@ export default function Checkout() {
       state: form.state,
       pincode: form.pincode,
       notes: form.notes,
-      status: 'Pending Verification',
+      status: 'Placed',
       paymentMethod: 'upi',
       paymentScreenshotUrl: screenshotUrl
     };
@@ -108,7 +108,7 @@ export default function Checkout() {
       if (!res.ok) throw new Error('Failed to create order');
       const data = await res.json();
       clearCart();
-      toast.success('Order placed! Awaiting admin approval.');
+      toast.success('Order placed successfully!');
       navigate('/orders', { state: { newOrder: data.id } });
     } catch (err) {
       console.warn("Backend not running, saving order to local storage fallback:", err);

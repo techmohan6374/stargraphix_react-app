@@ -183,11 +183,11 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-gray-100 font-outfit">
-        <div className="hidden md:block w-56 fixed inset-y-0 left-0 z-20">
+      <div className="flex h-screen overflow-hidden bg-gray-100 font-outfit">
+        <div className="hidden md:block w-56 h-screen flex-shrink-0 z-20">
           <AdminSidebar />
         </div>
-        <div className="flex-1 md:ml-56 min-w-0">
+        <div className="flex-1 h-screen overflow-y-auto min-w-0">
           <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30">
             <div className="flex items-center gap-3">
               <h1 className="text-lg font-bold text-gray-900">Dashboard</h1>
@@ -208,9 +208,9 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100 font-outfit">
-      {/* Sidebar - desktop */}
-      <div className="hidden md:block w-56 fixed inset-y-0 left-0 z-20">
+    <div className="flex h-screen overflow-hidden bg-gray-100 font-outfit">
+      {/* Sidebar - desktop fixed */}
+      <div className="hidden md:block w-56 h-screen flex-shrink-0 z-20">
         <AdminSidebar />
       </div>
 
@@ -224,8 +224,8 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Main */}
-      <div className="flex-1 md:ml-56 min-w-0">
+      {/* Main - Only right side scrolls */}
+      <div className="flex-1 h-screen overflow-y-auto min-w-0">
         {/* Top bar */}
         <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
