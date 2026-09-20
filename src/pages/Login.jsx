@@ -90,7 +90,7 @@ export default function Login({ mode = 'user' }) {
               { icon: 'Print', title: 'Premium Printing', desc: 'Business cards, flyers & more' },
               { icon: 'Code', title: 'Web & Apps', desc: 'Custom software solutions' },
               { icon: 'Image', title: 'Graphic Design', desc: 'Creative visual identity' },
-              { icon: 'Award', title: '10+ Years', desc: 'Trusted by 5000+ clients' },
+              { icon: 'Award', title: '20+ Years', desc: 'Trusted by 5000+ clients' },
             ].map((feature) => (
               <div key={feature.title} className="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-3 text-left border border-white border-opacity-20">
                 <Icon name={feature.icon} size={20} className="text-gold-400 mb-1.5" />

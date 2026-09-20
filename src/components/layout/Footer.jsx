@@ -19,7 +19,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-4">
-              Your trusted partner for premium design, printing & software development solutions. Crafting excellence since 2015.
+              Your trusted partner for premium design, printing & software development solutions. Crafting excellence with 20+ years of experience.
             </p>
             <div className="flex items-center gap-3">
               <a href="https://www.facebook.com/veera.samy.104" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-all duration-200">

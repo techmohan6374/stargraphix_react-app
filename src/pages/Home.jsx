@@ -99,7 +99,7 @@ const testimonials = [
 const stats = [
   { number: '5000+', label: 'Happy Clients', icon: 'Users' },
   { number: '25000+', label: 'Projects Completed', icon: 'Package' },
-  { number: '10+', label: 'Years of Excellence', icon: 'Award' },
+  { number: '20+', label: 'Years of Excellence', icon: 'Award' },
   { number: '24hr', label: 'Average Turnaround', icon: 'Clock' },
 ];
 

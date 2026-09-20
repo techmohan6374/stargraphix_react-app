@@ -22,10 +22,8 @@ import FileConverter from '../components/tools/FileConverter';
 import TextSharingTool from '../components/tools/TextSharingTool';
 import ImageUpscaler from '../components/tools/ImageUpscaler';
 import AgeCalculator from '../components/tools/AgeCalculator';
-import PdfEditor from '../components/tools/PdfEditor';
 
 export const TOOLS_LIST = [
-  { id: 'pdf-editor', name: 'Vector PDF Editor', icon: 'FileText' },
   { id: 'age-calculator', name: 'Creative Age & Life Calculator', icon: 'Calendar' },
   { id: 'text-share', name: 'Encrypted Text Sharing Tool', icon: 'Share' },
   { id: 'file-converter', name: 'Universal File Converter', icon: 'Cpu' },
@@ -54,8 +52,8 @@ export default function ToolWorkspace() {
   useEffect(() => {
     if (loading) return; // Wait until AuthContext initializes user state from localStorage on page refresh
 
-    // Public exception for Encrypted Text Sharing links, Age Calculator, and PDF Editor
-    const isPublicTool = toolId === 'text-share' || toolId === 'age-calculator' || toolId === 'pdf-editor';
+    // Public exception for Encrypted Text Sharing links and Age Calculator
+    const isPublicTool = toolId === 'text-share' || toolId === 'age-calculator';
     if (isPublicTool) return;
 
     const hasStoredUser = !!localStorage.getItem('sg_user');
@@ -71,8 +69,6 @@ export default function ToolWorkspace() {
 
   const renderToolComponent = () => {
     switch (toolId) {
-      case 'pdf-editor':
-        return <PdfEditor />;
       case 'age-calculator':
         return <AgeCalculator />;
       case 'text-share':
@@ -133,7 +129,7 @@ export default function ToolWorkspace() {
     );
   }
 
-  const isPublicTool = toolId === 'text-share' || toolId === 'age-calculator' || toolId === 'pdf-editor';
+  const isPublicTool = toolId === 'text-share' || toolId === 'age-calculator';
   const hasStoredUser = !!localStorage.getItem('sg_user');
   if (!isPublicTool && !isLoggedIn && !user && !hasStoredUser) {
     return null;

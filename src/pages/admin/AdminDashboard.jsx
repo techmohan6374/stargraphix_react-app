@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import ReactECharts from 'echarts-for-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const [mobileNav, setMobileNav] = useState(false);
   const [productsCount, setProductsCount] = useState(products.length);
   const [loading, setLoading] = useState(true);
+  const [trendRange, setTrendRange] = useState('6M');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,6 +89,97 @@ export default function AdminDashboard() {
   const statusCounts = { 'Pending Verification': 0, Placed: 0, Rejected: 0, Confirmed: 0, Processing: 0, 'In Progress': 0, Completed: 0, Cancelled: 0 };
   orders.forEach(o => { if (statusCounts[o.status] !== undefined) statusCounts[o.status]++; });
   const maxCount = Math.max(...Object.values(statusCounts), 1);
+
+  // Dynamic Revenue & Order Trends calculation from actual orders
+  const trendData = useMemo(() => {
+    const now = new Date();
+    const buckets = [];
+
+    if (trendRange === '7D') {
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const label = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        buckets.push({ key, label, revenue: 0, orders: 0 });
+      }
+
+      orders.forEach((o) => {
+        const dStr = o.placedAt || o.createdAt;
+        const d = dStr ? new Date(dStr) : null;
+        if (!d || isNaN(d.getTime())) return;
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const b = buckets.find((item) => item.key === key);
+        if (b) {
+          b.revenue += Number(o.total || 0);
+          b.orders += 1;
+        }
+      });
+    } else if (trendRange === '30D') {
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const label = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        buckets.push({ key, label, revenue: 0, orders: 0 });
+      }
+
+      orders.forEach((o) => {
+        const dStr = o.placedAt || o.createdAt;
+        const d = dStr ? new Date(dStr) : null;
+        if (!d || isNaN(d.getTime())) return;
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const b = buckets.find((item) => item.key === key);
+        if (b) {
+          b.revenue += Number(o.total || 0);
+          b.orders += 1;
+        }
+      });
+    } else if (trendRange === '1Y') {
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+        buckets.push({ key, label, revenue: 0, orders: 0 });
+      }
+
+      orders.forEach((o) => {
+        const dStr = o.placedAt || o.createdAt;
+        const d = dStr ? new Date(dStr) : null;
+        if (!d || isNaN(d.getTime())) return;
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const b = buckets.find((item) => item.key === key);
+        if (b) {
+          b.revenue += Number(o.total || 0);
+          b.orders += 1;
+        }
+      });
+    } else {
+      // Default: '6M' (Last 6 Months)
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const label = d.toLocaleDateString('en-IN', { month: 'short' });
+        buckets.push({ key, label, revenue: 0, orders: 0 });
+      }
+
+      orders.forEach((o) => {
+        const dStr = o.placedAt || o.createdAt;
+        const d = dStr ? new Date(dStr) : null;
+        if (!d || isNaN(d.getTime())) return;
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const b = buckets.find((item) => item.key === key);
+        if (b) {
+          b.revenue += Number(o.total || 0);
+          b.orders += 1;
+        }
+      });
+    }
+
+    return {
+      labels: buckets.map((b) => b.label),
+      revenues: buckets.map((b) => b.revenue),
+      orderCounts: buckets.map((b) => b.orders),
+    };
+  }, [orders, trendRange]);
 
   if (loading) {
     return (
@@ -239,14 +331,47 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* ECharts - Revenue & Order Volume Trends */}
+            {/* ECharts - Dynamic Revenue & Order Volume Trends */}
             <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-5 flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="font-bold text-gray-800 flex items-center gap-2">
-                  <Icon name="TrendingUp" size={16} className="text-primary-600" /> Revenue & Order Trends
-                </h2>
-                <span className="text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full">Updated Live</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+                <div>
+                  <h2 className="font-bold text-gray-800 flex items-center gap-2">
+                    <Icon name="TrendingUp" size={16} className="text-primary-600" /> Revenue & Order Trends
+                  </h2>
+                  <p className="text-xs text-gray-400 mt-0.5">Real-time revenue and order volume analytics</p>
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  {/* Timeframe Filter Buttons */}
+                  <div className="flex bg-gray-100 p-1 rounded-lg border border-gray-200 text-xs font-semibold">
+                    {[
+                      { key: '7D', label: '7D' },
+                      { key: '30D', label: '30D' },
+                      { key: '6M', label: '6M' },
+                      { key: '1Y', label: '1Y' },
+                    ].map((range) => (
+                      <button
+                        key={range.key}
+                        type="button"
+                        onClick={() => setTrendRange(range.key)}
+                        className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all ${
+                          trendRange === range.key
+                            ? 'bg-white text-gray-900 shadow-xs'
+                            : 'text-gray-500 hover:text-gray-800'
+                        }`}
+                      >
+                        {range.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <span className="text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-full flex items-center gap-1 border border-green-100">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Live
+                  </span>
+                </div>
               </div>
+
               <div className="h-64 w-full">
                 <ReactECharts
                   option={{
@@ -255,7 +380,24 @@ export default function AdminDashboard() {
                       axisPointer: { type: 'cross' },
                       backgroundColor: '#1f2937',
                       borderColor: '#374151',
-                      textStyle: { color: '#fff', fontSize: 12, fontFamily: 'Outfit' }
+                      textStyle: { color: '#fff', fontSize: 12, fontFamily: 'Outfit' },
+                      formatter: (params) => {
+                        let res = `<div style="font-weight:bold;margin-bottom:4px;color:#f9fafb;">${params[0].name}</div>`;
+                        params.forEach((item) => {
+                          if (item.seriesName.includes('Revenue')) {
+                            res += `<div style="display:flex;align-items:center;gap:8px;justify-content:space-between;margin-top:2px;">
+                              <span style="color:#d1d5db;">${item.marker} ${item.seriesName}:</span>
+                              <b style="color:#f87171;margin-left:12px;">₹${Number(item.value).toLocaleString('en-IN')}</b>
+                            </div>`;
+                          } else {
+                            res += `<div style="display:flex;align-items:center;gap:8px;justify-content:space-between;margin-top:2px;">
+                              <span style="color:#d1d5db;">${item.marker} ${item.seriesName}:</span>
+                              <b style="color:#60a5fa;margin-left:12px;">${item.value} order${item.value !== 1 ? 's' : ''}</b>
+                            </div>`;
+                          }
+                        });
+                        return res;
+                      }
                     },
                     legend: {
                       top: '0%',
@@ -268,18 +410,27 @@ export default function AdminDashboard() {
                     grid: { left: '3%', right: '4%', bottom: '3%', top: '18%', containLabel: true },
                     xAxis: {
                       type: 'category',
-                      data: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                      data: trendData.labels,
                       axisLine: { lineStyle: { color: '#e5e7eb' } },
-                      axisLabel: { color: '#6b7280', fontFamily: 'Outfit' }
+                      axisLabel: {
+                        color: '#6b7280',
+                        fontFamily: 'Outfit',
+                        interval: trendRange === '30D' ? 4 : 0
+                      }
                     },
                     yAxis: [
                       {
                         type: 'value',
+                        name: 'Revenue',
+                        nameTextStyle: { color: '#9ca3af', fontSize: 10, fontFamily: 'Outfit', align: 'left', padding: [0, 0, 4, 0] },
                         axisLabel: { formatter: '₹{value}', color: '#6b7280', fontFamily: 'Outfit' },
                         splitLine: { lineStyle: { color: '#f3f4f6' } }
                       },
                       {
                         type: 'value',
+                        name: 'Orders',
+                        minInterval: 1,
+                        nameTextStyle: { color: '#9ca3af', fontSize: 10, fontFamily: 'Outfit', align: 'right', padding: [0, 0, 4, 0] },
                         axisLabel: { formatter: '{value}', color: '#6b7280', fontFamily: 'Outfit' },
                         splitLine: { show: false }
                       }
@@ -288,7 +439,7 @@ export default function AdminDashboard() {
                       {
                         name: 'Revenue (₹)',
                         type: 'bar',
-                        barWidth: '35%',
+                        barWidth: trendRange === '30D' ? '50%' : '32%',
                         itemStyle: {
                           color: {
                             type: 'linear',
@@ -297,7 +448,7 @@ export default function AdminDashboard() {
                           },
                           borderRadius: [6, 6, 0, 0]
                         },
-                        data: [450, 620, 890, 720, 1150, totalRevenue || 825]
+                        data: trendData.revenues
                       },
                       {
                         name: 'Orders Count',
@@ -313,7 +464,7 @@ export default function AdminDashboard() {
                             colorStops: [{ offset: 0, color: 'rgba(37, 99, 235, 0.2)' }, { offset: 1, color: 'rgba(37, 99, 235, 0)' }]
                           }
                         },
-                        data: [2, 4, 5, 3, 8, orders.length || 1]
+                        data: trendData.orderCounts
                       }
                     ]
                   }}

@@ -24,7 +24,7 @@ export default function FreeTools() {
   const navigate = useNavigate();
 
   const handleOpenTool = (toolId) => {
-    const isPublic = toolId === 'text-share' || toolId === 'age-calculator' || toolId === 'pdf-editor';
+    const isPublic = toolId === 'text-share' || toolId === 'age-calculator';
     if (!isPublic && (!isLoggedIn || !user)) {
       toast.error('Please sign in with Google Auth to access Creative Tools!', {
         duration: 4000,
@@ -37,14 +37,6 @@ export default function FreeTools() {
 
   // Tool definitions with metadata
   const tools = [
-    {
-      id: 'pdf-editor',
-      name: 'Vector PDF Editor & Annotator',
-      desc: 'Upload any PDF to add text, highlights, white-out redactions, signatures, and stamps. Export in 100% original lossless vector quality.',
-      icon: 'FileText',
-      badge: 'New',
-      gradient: 'from-rose-600 to-red-700',
-    },
     {
       id: 'age-calculator',
       name: 'Creative Age & Life Calculator',
@@ -232,7 +224,7 @@ export default function FreeTools() {
                 </div>
 
                 <div className="pt-4 flex items-center gap-1 text-[10px] font-bold transition-colors uppercase tracking-wider mt-2">
-                  {(isLoggedIn && user) || tool.id === 'text-share' || tool.id === 'age-calculator' || tool.id === 'pdf-editor' ? (
+                  {(isLoggedIn && user) || tool.id === 'text-share' || tool.id === 'age-calculator' ? (
                     <span className="text-primary-600 group-hover:text-primary-700 flex items-center gap-1">
                       Open Tool <Icon name="ArrowRight" size={10} className="group-hover:translate-x-0.5 transition-transform" />
                     </span>

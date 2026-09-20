@@ -92,32 +92,48 @@ export function AuthProvider({ children }) {
   };
 
   const updateProfile = async (updates) => {
-    // Sync with backend /api/users/me
     try {
       const storedUser = localStorage.getItem('sg_user');
       let token = null;
       if (storedUser) {
-        token = JSON.parse(storedUser).token;
+        try {
+          token = JSON.parse(storedUser).token;
+        } catch {}
       }
+
+      const payload = {
+        id: user?.id || updates.id,
+        email: user?.email || updates.email,
+        name: updates.name || user?.name,
+        picture: updates.photo || updates.picture || user?.photo,
+        phone: updates.phone || user?.phone
+      };
 
       const res = await fetch(`${API_BASE}/users/me`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
-        body: JSON.stringify(updates)
+        body: JSON.stringify(payload)
       });
 
       if (res.ok) {
         const data = await res.json();
         const updated = { 
           ...user, 
-          name: data.name,
-          photo: data.picture
+          name: data.name || payload.name,
+          photo: data.picture || user?.photo,
+          phone: updates.phone || user?.phone
         };
         localStorage.setItem('sg_user', JSON.stringify(updated));
         setUser(updated);
+        return updated;
+      } else {
+        const updated = { ...user, ...updates };
+        localStorage.setItem('sg_user', JSON.stringify(updated));
+        setUser(updated);
+        return updated;
       }
     } catch (err) {
       console.error("Profile update failed:", err);
@@ -125,6 +141,7 @@ export function AuthProvider({ children }) {
       const updated = { ...user, ...updates };
       localStorage.setItem('sg_user', JSON.stringify(updated));
       setUser(updated);
+      return updated;
     }
   };
 

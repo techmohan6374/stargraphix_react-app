@@ -51,6 +51,7 @@ export default function AdminWebsites() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [viewMode, setViewMode] = useState('list'); // 'list' (clean table) or 'grid' (cards)
   const [mobileNav, setMobileNav] = useState(false);
 
   // Modal states
@@ -61,7 +62,7 @@ export default function AdminWebsites() {
   const [saving, setSaving] = useState(false);
   const [deleteModalItem, setDeleteModalItem] = useState(null);
 
-  // Track revealed passwords on cards by id
+  // Track revealed passwords by website ID
   const [revealedPasswords, setRevealedPasswords] = useState({});
 
   const toggleRevealPassword = (id) => {
@@ -173,7 +174,7 @@ export default function AdminWebsites() {
         return updated;
       });
 
-      toast.success(editId ? 'Website updated successfully!' : 'Website added successfully!');
+      toast.success(editId ? 'Website updated!' : 'Website added!');
       setShowModal(false);
     } catch (err) {
       console.warn('API error, saving to local state:', err);
@@ -218,7 +219,7 @@ export default function AdminWebsites() {
   // Copy to Clipboard helper
   const handleCopy = (text, label) => {
     navigator.clipboard.writeText(text);
-    toast.success(`${label} copied to clipboard!`, { icon: '📋' });
+    toast.success(`${label} copied!`, { icon: '📋' });
   };
 
   // Filtered List
@@ -238,10 +239,26 @@ export default function AdminWebsites() {
 
   const categories = ['All', 'Official', 'Tools', 'Showcase', 'Portal', 'Client'];
 
+  const getCategoryBadgeClass = (category) => {
+    const cat = (category || '').toLowerCase();
+    switch (cat) {
+      case 'tools':
+        return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'client':
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'official':
+        return 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'showcase':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
   return (
-    <div className="flex min-h-screen bg-gray-50/50 font-outfit text-left">
+    <div className="flex min-h-screen bg-gray-50/60 font-outfit text-left">
       {/* Desktop Sidebar */}
-      <div className="hidden md:block">
+      <div className="hidden md:block flex-shrink-0">
         <AdminSidebar />
       </div>
 
@@ -257,8 +274,8 @@ export default function AdminWebsites() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Minimalist Header */}
-        <header className="bg-white border-b border-gray-200/70 px-4 sm:px-8 py-4 flex items-center justify-between sticky top-0 z-20">
+        {/* Top Header */}
+        <header className="bg-white border-b border-gray-200 px-4 sm:px-8 py-4 flex items-center justify-between sticky top-0 z-20 shadow-xs">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -268,11 +285,11 @@ export default function AdminWebsites() {
               <Icon name="Menu" size={18} />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+              <h1 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
                 <Icon name="Globe" size={20} className="text-primary-600" /> Star Graphix Websites List
               </h1>
-              <p className="text-xs text-gray-400">
-                Manage, catalog, and synchronize digital properties with Google Sheets
+              <p className="text-xs text-gray-400 mt-0.5">
+                Manage, catalog, and synchronize Star Graphix digital properties with Google Sheets
               </p>
             </div>
           </div>
@@ -280,7 +297,7 @@ export default function AdminWebsites() {
           <button
             type="button"
             onClick={handleOpenCreate}
-            className="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-xs transition-all active:scale-95"
+            className="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-sm shadow-primary-200 transition-all active:scale-95"
           >
             <Icon name="Plus" size={14} /> Add Website
           </button>
@@ -288,43 +305,43 @@ export default function AdminWebsites() {
 
         {/* Content Body */}
         <main className="flex-1 p-4 sm:p-8 space-y-6 w-full">
-          {/* Minimalist Metrics */}
+          {/* Minimalist Summary Metrics */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-xs">
               <span className="text-xs font-semibold text-gray-400 block">Total Websites</span>
-              <span className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 block">{websites.length}</span>
+              <span className="text-2xl sm:text-3xl font-black text-gray-900 mt-1 block">{websites.length}</span>
               <span className="text-[11px] text-emerald-600 font-medium mt-1 inline-flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Live Catalog
               </span>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-xs">
               <span className="text-xs font-semibold text-gray-400 block">Official Portals</span>
-              <span className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 block">
+              <span className="text-2xl sm:text-3xl font-black text-gray-900 mt-1 block">
                 {websites.filter((w) => (w.category || '').toLowerCase() === 'official').length}
               </span>
               <span className="text-[11px] text-gray-400 mt-1 block">Main brand domains</span>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-xs">
               <span className="text-xs font-semibold text-gray-400 block">Tools & Apps</span>
-              <span className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 block">
+              <span className="text-2xl sm:text-3xl font-black text-gray-900 mt-1 block">
                 {websites.filter((w) => (w.category || '').toLowerCase() === 'tools').length}
               </span>
-              <span className="text-[11px] text-gray-400 mt-1 block">Creative utilities</span>
+              <span className="text-[11px] text-gray-400 mt-1 block">Creative generators</span>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-xs">
               <span className="text-xs font-semibold text-gray-400 block">Google Sheets Sync</span>
-              <span className="text-base font-bold text-emerald-600 mt-1 block flex items-center gap-1.5">
+              <span className="text-base font-black text-emerald-600 mt-1 block flex items-center gap-1.5">
                 <Icon name="CheckCircle" size={16} className="text-emerald-500" /> Active Tab
               </span>
               <span className="text-[11px] text-gray-400 mt-1 block">"Websites" Sheet</span>
             </div>
           </div>
 
-          {/* Clean Minimalist Search & Filter Bar */}
-          <div className="bg-white rounded-2xl border border-gray-200/80 p-3.5 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          {/* Unified Filter & Toolbar */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-3.5 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
             {/* Search Input */}
             <div className="relative flex-1 max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -332,40 +349,67 @@ export default function AdminWebsites() {
               </div>
               <input
                 type="text"
-                placeholder="Search websites by name, URL, username, description..."
+                placeholder="Search by name, URL, username, description..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 text-xs font-medium border border-gray-200 rounded-xl outline-none focus:border-primary-600 focus:ring-1 focus:ring-primary-600 bg-gray-50/50 hover:bg-white focus:bg-white transition-all text-gray-800"
               />
             </div>
 
-            {/* Category Filter Pills */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              {categories.map((cat) => (
+            {/* Filter Pills & View Switcher */}
+            <div className="flex flex-wrap items-center justify-between md:justify-end gap-3">
+              {/* Category Pills */}
+              <div className="flex flex-wrap items-center gap-1">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                      selectedCategory.toLowerCase() === cat.toLowerCase()
+                        ? 'bg-primary-600 text-white shadow-xs'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* View Mode Toggle */}
+              <div className="flex items-center bg-gray-100 p-1 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600">
                 <button
-                  key={cat}
                   type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                    selectedCategory.toLowerCase() === cat.toLowerCase()
-                      ? 'bg-primary-600 text-white shadow-xs'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  onClick={() => setViewMode('list')}
+                  className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 ${
+                    viewMode === 'list' ? 'bg-white shadow-xs text-gray-900 font-bold' : 'hover:text-gray-900'
                   }`}
+                  title="Table List View"
                 >
-                  {cat}
+                  <Icon name="Layers" size={13} /> List
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 ${
+                    viewMode === 'grid' ? 'bg-white shadow-xs text-gray-900 font-bold' : 'hover:text-gray-900'
+                  }`}
+                  title="Grid Cards View"
+                >
+                  <Icon name="Grid" size={13} /> Grid
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Websites Cards Grid */}
+          {/* Websites Display */}
           {loading ? (
             <div className="py-16 text-center">
               <div className="w-8 h-8 border-3 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-xs font-semibold text-gray-400">Loading Websites...</p>
+              <p className="text-xs font-semibold text-gray-400">Loading Websites List...</p>
             </div>
           ) : filteredWebsites.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-gray-200/80 p-12 text-center shadow-xs">
+            <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-xs">
               <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-3">
                 <Icon name="Globe" size={22} />
               </div>
@@ -374,7 +418,147 @@ export default function AdminWebsites() {
                 {search ? `No results for "${search}".` : 'No websites registered in this category.'}
               </p>
             </div>
+          ) : viewMode === 'list' ? (
+            /* CLEAN STRUCTURED TABLE / LIST VIEW */
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase tracking-wider text-[11px] font-bold">
+                      <th className="py-3.5 px-4 sm:px-6">Website Details</th>
+                      <th className="py-3.5 px-4">Category</th>
+                      <th className="py-3.5 px-4">URL / Domain</th>
+                      <th className="py-3.5 px-4">Credentials (Optional)</th>
+                      <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredWebsites.map((item) => {
+                      const hasCredentials = item.username || item.password;
+                      const isPasswordRevealed = revealedPasswords[item.id];
+
+                      return (
+                        <tr key={item.id} className="hover:bg-gray-50/80 transition-colors group">
+                          {/* Website Details */}
+                          <td className="py-4 px-4 sm:px-6 max-w-xs">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center flex-shrink-0">
+                                <Icon name="Globe" size={17} />
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="font-bold text-gray-900 text-sm truncate">
+                                  {item.name}
+                                </h4>
+                                <p className="text-[11px] text-gray-400 line-clamp-1 mt-0.5">
+                                  {item.description || 'No description.'}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Category Badge */}
+                          <td className="py-4 px-4 whitespace-nowrap">
+                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${getCategoryBadgeClass(item.category)}`}>
+                              {item.category || 'General'}
+                            </span>
+                          </td>
+
+                          {/* URL Pill */}
+                          <td className="py-4 px-4">
+                            <div className="inline-flex items-center gap-2 bg-gray-50 px-2.5 py-1.5 rounded-lg border border-gray-200 font-mono text-[11px] text-gray-700 max-w-xs truncate">
+                              <span className="truncate select-all">{item.url}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(item.url, 'Website URL')}
+                                className="text-gray-400 hover:text-gray-800 transition-colors flex-shrink-0"
+                                title="Copy URL"
+                              >
+                                <Icon name="Share" size={12} />
+                              </button>
+                            </div>
+                          </td>
+
+                          {/* Credentials */}
+                          <td className="py-4 px-4 whitespace-nowrap">
+                            {hasCredentials ? (
+                              <div className="space-y-1 font-mono text-[11px] text-gray-700">
+                                {item.username && (
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-gray-400">User:</span>
+                                    <span className="font-medium text-gray-800">{item.username}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleCopy(item.username, 'Username')}
+                                      className="text-primary-600 hover:underline text-[10px] font-bold ml-1"
+                                    >
+                                      Copy
+                                    </button>
+                                  </div>
+                                )}
+                                {item.password && (
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-gray-400">Pass:</span>
+                                    <span className="font-medium text-gray-800">{isPasswordRevealed ? item.password : '••••••••'}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleRevealPassword(item.id)}
+                                      className="text-gray-500 hover:text-gray-800 text-[10px] ml-1"
+                                    >
+                                      {isPasswordRevealed ? 'Hide' : 'Show'}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleCopy(item.password, 'Password')}
+                                      className="text-primary-600 hover:underline text-[10px] font-bold"
+                                    >
+                                      Copy
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-gray-300 font-mono">—</span>
+                            )}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
+                            <div className="flex items-center justify-end gap-2">
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-1.5 rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-600 hover:text-white font-bold text-xs inline-flex items-center gap-1 transition-all"
+                              >
+                                Visit <Icon name="ArrowRight" size={11} />
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEdit(item)}
+                                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                title="Edit Website"
+                              >
+                                <Icon name="Edit" size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeleteModalItem(item)}
+                                className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                title="Delete Website"
+                              >
+                                <Icon name="Trash" size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           ) : (
+            /* BALANCED UNIFORM GRID CARD VIEW */
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
               {filteredWebsites.map((item) => {
                 const hasCredentials = item.username || item.password;
@@ -383,26 +567,21 @@ export default function AdminWebsites() {
                 return (
                   <div
                     key={item.id}
-                    className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between"
+                    className="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between h-full"
                   >
                     <div>
-                      {/* Top Header inside Card */}
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center flex-shrink-0">
-                            <Icon name="Globe" size={17} />
+                      {/* Top Header Row */}
+                      <div className="flex items-center justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center flex-shrink-0">
+                            <Icon name="Globe" size={16} />
                           </div>
-                          <div>
-                            <span className="text-[10px] font-mono text-gray-400 block uppercase">
-                              {item.id}
-                            </span>
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-700">
-                              {item.category || 'General'}
-                            </span>
-                          </div>
+                          <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${getCategoryBadgeClass(item.category)}`}>
+                            {item.category || 'General'}
+                          </span>
                         </div>
 
-                        {/* Actions */}
+                        {/* Action Buttons */}
                         <div className="flex items-center gap-1 text-gray-400">
                           <button
                             type="button"
@@ -423,18 +602,18 @@ export default function AdminWebsites() {
                         </div>
                       </div>
 
-                      {/* Title */}
+                      {/* Name */}
                       <h3 className="text-base font-bold text-gray-900 mb-1.5 line-clamp-1">
                         {item.name}
                       </h3>
 
                       {/* Description */}
-                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-3">
+                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-3 min-h-[32px]">
                         {item.description || 'No description provided.'}
                       </p>
 
-                      {/* URL Pill */}
-                      <div className="bg-gray-50 rounded-xl px-3 py-2 border border-gray-200/60 flex items-center justify-between gap-2 text-xs font-mono text-gray-700 mb-3">
+                      {/* URL Box */}
+                      <div className="bg-gray-50 rounded-xl px-3 py-2 border border-gray-200/80 flex items-center justify-between gap-2 text-xs font-mono text-gray-700 mb-3">
                         <span className="truncate text-[11px] select-all">{item.url}</span>
                         <button
                           type="button"
@@ -446,10 +625,10 @@ export default function AdminWebsites() {
                         </button>
                       </div>
 
-                      {/* Optional Credentials Panel (Only shown if username or password exist) */}
+                      {/* Credentials Box */}
                       {hasCredentials && (
-                        <div className="bg-indigo-50/40 rounded-xl p-2.5 border border-indigo-100/70 text-xs space-y-1.5 mb-3">
-                          <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block">
+                        <div className="bg-gray-50 rounded-xl p-2.5 border border-gray-200 text-xs space-y-1.5 mb-3">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
                             Login Credentials
                           </span>
 
@@ -459,7 +638,7 @@ export default function AdminWebsites() {
                               <button
                                 type="button"
                                 onClick={() => handleCopy(item.username, 'Username')}
-                                className="text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold"
+                                className="text-[10px] text-primary-600 hover:underline font-bold"
                               >
                                 Copy
                               </button>
@@ -475,14 +654,14 @@ export default function AdminWebsites() {
                                 <button
                                   type="button"
                                   onClick={() => toggleRevealPassword(item.id)}
-                                  className="text-[10px] text-gray-500 hover:text-gray-800 font-semibold"
+                                  className="text-[10px] text-gray-500 hover:text-gray-800"
                                 >
                                   {isPasswordRevealed ? 'Hide' : 'Show'}
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(item.password, 'Password')}
-                                  className="text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold"
+                                  className="text-[10px] text-primary-600 hover:underline font-bold"
                                 >
                                   Copy
                                 </button>
@@ -494,7 +673,7 @@ export default function AdminWebsites() {
                     </div>
 
                     {/* Bottom Link Bar */}
-                    <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <div className="pt-3 mt-3 border-t border-gray-100 flex items-center justify-between">
                       <span className="text-[10px] text-gray-400 font-mono">
                         {item.createdAt ? item.createdAt.substring(0, 10) : ''}
                       </span>
@@ -582,7 +761,7 @@ export default function AdminWebsites() {
                 </select>
               </div>
 
-              {/* Optional Credentials Grid */}
+              {/* Optional Credentials */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 <div>
                   <label className="font-semibold text-gray-500 block mb-1">
@@ -635,7 +814,7 @@ export default function AdminWebsites() {
                 />
               </div>
 
-              {/* Modal Buttons: Note button renamed to "Add" per user request */}
+              {/* Action Buttons */}
               <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
                 <button
                   type="button"

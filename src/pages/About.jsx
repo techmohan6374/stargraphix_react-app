@@ -12,7 +12,7 @@ const values = [
   { icon: 'Award', title: 'Quality First', desc: 'We never compromise on quality. Every design and code we deliver is crafted to perfection.' },
   { icon: 'Zap', title: 'Speed & Efficiency', desc: 'Fast turnarounds without sacrificing quality. Most projects delivered within 24-48 hours.' },
   { icon: 'Users', title: 'Client-Centric', desc: 'Your satisfaction is our priority. We work closely with you until you love the result.' },
-  { icon: 'Shield', title: 'Trust & Reliability', desc: 'With 10+ years in the industry, we have built a reputation of trust with 5000+ happy clients.' },
+  { icon: 'Shield', title: 'Trust & Reliability', desc: 'With 20+ years in the industry, we have built a reputation of trust with 5000+ happy clients.' },
 ];
 
 export default function About() {
@@ -23,7 +23,7 @@ export default function About() {
         <div className="container-custom text-center">
           <img src="/logo.png" alt="Star Graphix" className="w-20 h-20 mx-auto mb-4 object-contain" />
           <h1 className="text-3xl md:text-4xl font-black text-white mb-3">About Star Graphix</h1>
-          <p className="text-red-200 text-lg max-w-xl mx-auto">Your trusted partner for premium design, printing, and software development since 2015</p>
+          <p className="text-red-200 text-lg max-w-xl mx-auto">Your trusted partner for premium design, printing, and software development since 2004</p>
         </div>
       </section>
 
@@ -34,7 +34,7 @@ export default function About() {
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Our Story</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                Star Graphix was founded in 2015 with a simple mission: to make premium design and printing services accessible to businesses of all sizes. What started as a small graphic design studio in Chennai has grown into a full-service creative and technology company.
+                Star Graphix was founded with a simple mission: to make premium design and printing services accessible to businesses of all sizes. What started as a small graphic design studio in Chennai has grown into a full-service creative and technology company with over 20 years of experience.
               </p>
               <p className="text-gray-600 leading-relaxed mb-4">
                 Today, we serve over 5,000 clients across India, offering everything from business cards and wedding invitations to custom software development and mobile applications. Our team of passionate designers and developers work together to deliver exceptional results.
@@ -47,7 +47,7 @@ export default function About() {
               {[
                 { number: '5000+', label: 'Happy Clients', icon: 'Users' },
                 { number: '25K+', label: 'Projects Done', icon: 'Package' },
-                { number: '10+', label: 'Years Experience', icon: 'Award' },
+                { number: '20+', label: 'Years Experience', icon: 'Award' },
                 { number: '15+', label: 'Team Members', icon: 'Heart' },
               ].map((stat) => (
                 <div key={stat.label} className="bg-gray-50 rounded-xl p-5 text-center">
