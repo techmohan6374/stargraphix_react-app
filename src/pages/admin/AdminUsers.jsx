@@ -13,24 +13,16 @@ export default function AdminUsers() {
   const [mobileNav, setMobileNav] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedUser, setSelectedUser] = useState(null);
   const itemsPerPage = 10;
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
-
-  useEffect(() => {
-    const maxPage = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-    if (currentPage > maxPage) {
-      setCurrentPage(1);
-    }
-  }, [filtered.length, itemsPerPage, currentPage]);
 
   const fetchUsersAndOrders = async () => {
     const storedUser = localStorage.getItem('sg_user');
     let token = null;
     if (storedUser) {
-      token = JSON.parse(storedUser).token;
+      try {
+        token = JSON.parse(storedUser).token;
+      } catch { }
     }
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
@@ -39,7 +31,8 @@ export default function AdminUsers() {
       const res = await fetch(`${API_BASE}/users`, { headers });
       if (res.ok) {
         const data = await res.json();
-        const mapped = data.map(u => ({
+        const userList = Array.isArray(data) ? data : (Array.isArray(data?.users) ? data.users : []);
+        const mapped = userList.map(u => ({
           id: u.id || u._id,
           name: u.name,
           email: u.email,
@@ -55,25 +48,28 @@ export default function AdminUsers() {
     } catch (err) {
       console.warn("Backend not running, falling back to local users:", err);
       const stored = JSON.parse(localStorage.getItem('sg_users') || '[]');
+      const storedList = Array.isArray(stored) ? stored : [];
       const adminUser = {
         id: 'admin_001', name: 'Admin', email: 'admin@stargraphix.com',
         role: 'admin', provider: 'static', joinedAt: new Date().toISOString(), photo: null,
       };
-      const hasAdmin = stored.find(u => u.role === 'admin');
-      setUsers(hasAdmin ? stored : [adminUser, ...stored]);
+      const hasAdmin = storedList.find(u => u.role === 'admin');
+      setUsers(hasAdmin ? storedList : [adminUser, ...storedList]);
     }
 
     try {
       const resOrders = await fetch(`${API_BASE}/orders`, { headers });
       if (resOrders.ok) {
         const dataOrders = await resOrders.json();
-        setOrders(dataOrders);
+        setOrders(Array.isArray(dataOrders) ? dataOrders : (Array.isArray(dataOrders?.orders) ? dataOrders.orders : []));
       } else {
-        setOrders(JSON.parse(localStorage.getItem('sg_orders') || '[]'));
+        const localOrders = JSON.parse(localStorage.getItem('sg_orders') || '[]');
+        setOrders(Array.isArray(localOrders) ? localOrders : []);
       }
     } catch (err) {
       console.warn("Backend offline, falling back to local orders for users page:", err);
-      setOrders(JSON.parse(localStorage.getItem('sg_orders') || '[]'));
+      const localOrders = JSON.parse(localStorage.getItem('sg_orders') || '[]');
+      setOrders(Array.isArray(localOrders) ? localOrders : []);
     } finally {
       setLoading(false);
     }
@@ -89,8 +85,22 @@ export default function AdminUsers() {
     u.email?.toLowerCase().includes(search.toLowerCase())
   );
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    const maxPage = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+    if (currentPage > maxPage) {
+      setCurrentPage(1);
+    }
+  }, [filtered.length, itemsPerPage, currentPage]);
+
+  const paginatedUsers = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   const getUserOrders = (user) => {
     if (!user) return [];
+    if (!Array.isArray(orders)) return [];
     return orders.filter(o => {
       const matchId = (o.userId && user.id && String(o.userId) === String(user.id)) ||
                       (o.userId && user._id && String(o.userId) === String(user._id));
@@ -106,7 +116,9 @@ export default function AdminUsers() {
       const storedUser = localStorage.getItem('sg_user');
       let token = null;
       if (storedUser) {
-        token = JSON.parse(storedUser).token;
+        try {
+          token = JSON.parse(storedUser).token;
+        } catch { }
       }
       const res = await fetch(`${API_BASE}/users/${userId}`, {
         method: 'DELETE',
@@ -114,7 +126,7 @@ export default function AdminUsers() {
       });
       if (!res.ok) throw new Error('Delete failed');
       toast.success('User removed');
-      fetchUsers();
+      fetchUsersAndOrders();
     } catch (err) {
       console.error(err);
       const updated = users.filter(u => u.id !== userId);
@@ -123,9 +135,6 @@ export default function AdminUsers() {
       toast.success('User removed (Local Fallback)');
     }
   };
-
-  const [selectedUser, setSelectedUser] = useState(null);
-  const paginatedUsers = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100 font-outfit">
